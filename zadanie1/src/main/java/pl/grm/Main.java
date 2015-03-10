@@ -1,56 +1,83 @@
 package pl.grm;
 
 import java.io.*;
-import java.util.*;
 
 import pl.grm.geocompression.*;
 
 public class Main {
+	private static Data	dataIn	= new Data();
+	private static Data	dataOut	= null;
 	
 	public static void main(String[] args) {
-		if (args.length > 0) {
-			Compress compress = null;
-			Data dataIn = new Data();
-			Data dataOut = null;
-			if (args.length == 1 || (args.length == 2 && args[0].equals("-test"))) {
-				try {
-					if (args.length == 1) {
-						String filename = args[0];
-						dataIn.loadDataFromFile(filename);
-					} else {
-						try {
-							int testID;
-							if ((testID = Integer.parseInt(args[1])) > 0 && testID < 5) {
-								dataIn.loadTestData(testID);
-								List<GeoPosition> data = dataIn.getData();
-								for (GeoPosition geoPosition : data) {
-									System.out.println(geoPosition.toString());
-								}
-							} else {
-								System.out.println("Brak testu dla wskazanego ID");
-							}
-						}
-						catch (NumberFormatException e) {
-							e.printStackTrace();
-						}
-						catch (FileNotFoundException e) {
-							e.printStackTrace();
-						}
-					}
-					compress = new Compress(dataIn);
-					compress.compress();
-					dataOut = compress.getComprossedData();
-					FileOperations.saveOutputFile(dataOut);
+		try {
+			if (args.length == 2 || args.length == 3) {
+				switch (args[0]) {
+					case "compress" :
+						compression(args);
+						break;
+					case "decompress" :
+						decompression(args);
+						break;
+					default :
+						throw new ArgumentException("compress or decompress not specified!");
 				}
-				catch (Exception e) {
-					e.printStackTrace();
-				}
-				
 			} else {
-				System.out.println("Podales za duzo parametrow!");
+				System.out.println("Zla ilosc parametrow!");
 			}
-		} else {
-			System.out.println("Nie podales nazwy pliku!");
 		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		catch (ArgumentException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public static void compression(String[] args) throws IOException, ArgumentException {
+		Compressor compressor;
+		Data dataOut;
+		if (args.length == 2) {
+			String filename = args[1];
+			dataIn.loadDataFromFile(filename);
+		} else if (args.length == 3) {
+			int testID;
+			if (args[1].equals("-test")) {
+				if ((testID = Integer.parseInt(args[2])) > 0 && testID < 5) {
+					dataIn.loadTestDataToCompress(testID);
+				} else {
+					throw new ArgumentException("Brak testu dla wskazanego ID");
+				}
+			} else {
+				throw new ArgumentException("Bledna ilosc argumentow!");
+			}
+		}
+		compressor = new Compressor(dataIn);
+		compressor.compress();
+		dataOut = compressor.getComprossedData();
+		FileOperations.saveOutputFile(dataOut, "dane_compress.txt");
+	}
+	
+	private static void decompression(String[] args) throws IOException, ArgumentException {
+		Decompressor Decompressor;
+		Data dataOut;
+		if (args.length == 2) {
+			String filename = args[1];
+			dataIn.loadDataFromFile(filename);
+		} else if (args.length == 3) {
+			int testID;
+			if (args[1].equals("-test")) {
+				if ((testID = Integer.parseInt(args[2])) > 0 && testID < 5) {
+					dataIn.loadTestDataToCompress(testID);
+				} else {
+					throw new ArgumentException("Brak testu dla wskazanego ID");
+				}
+			} else {
+				throw new ArgumentException("Bledna ilosc argumentow!");
+			}
+		}
+		Decompressor = new Decompressor(dataIn);
+		Decompressor.decompress();
+		dataOut = Decompressor.getDecomprossedData();
+		FileOperations.saveOutputFile(dataOut, "dane_decompress.txt");
 	}
 }

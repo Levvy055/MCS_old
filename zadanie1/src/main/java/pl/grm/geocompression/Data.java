@@ -10,16 +10,16 @@ public class Data {
 	
 	public void loadDataFromFile(String filename) throws IOException {
 		File file = FileOperations.getFile(filename);
-		loadDataFromFile(file);
+		loadUncompressedDataFromFile(file);
 	}
 	
-	public void loadTestData(int testID) throws IOException {
+	public void loadTestDataToCompress(int testID) throws IOException {
 		String fileName = "example_Data/Data" + testID + ".txt";
 		File file = FileOperations.getFile(fileName);
-		loadDataFromFile(file);
+		loadUncompressedDataFromFile(file);
 	}
 	
-	public void loadDataFromFile(File file) throws IOException {
+	public void loadUncompressedDataFromFile(File file) throws IOException {
 		if (file == null || !file.exists()) { throw new FileNotFoundException("Plik "
 				+ file.getName() + " nie istnieje!"); }
 		Stream<String> lines = Files.lines(file.toPath());
