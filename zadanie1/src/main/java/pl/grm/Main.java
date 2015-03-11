@@ -38,7 +38,7 @@ public class Main {
 		Data dataOut;
 		if (args.length == 2) {
 			String filename = args[1];
-			dataIn.loadDataFromFile(filename);
+			dataIn.loadUncompressedDataFromFile(filename);
 		} else if (args.length == 3) {
 			int testID;
 			if (args[1].equals("-test")) {
@@ -54,7 +54,7 @@ public class Main {
 		compressor = new Compressor(dataIn);
 		compressor.compress();
 		dataOut = compressor.getComprossedData();
-		FileOperations.saveOutputFile(dataOut, "dane_compress.txt");
+		FileOperations.saveOutputFile(dataOut, "dane_compress");
 	}
 	
 	private static void decompression(String[] args) throws IOException, ArgumentException {
@@ -62,22 +62,13 @@ public class Main {
 		Data dataOut;
 		if (args.length == 2) {
 			String filename = args[1];
-			dataIn.loadDataFromFile(filename);
-		} else if (args.length == 3) {
-			int testID;
-			if (args[1].equals("-test")) {
-				if ((testID = Integer.parseInt(args[2])) > 0 && testID < 5) {
-					dataIn.loadTestDataToCompress(testID);
-				} else {
-					throw new ArgumentException("Brak testu dla wskazanego ID");
-				}
-			} else {
-				throw new ArgumentException("Bledna ilosc argumentow!");
-			}
+			dataIn.loadCompressedDataFromFile(filename);
+		} else {
+			throw new ArgumentException("Bledna ilosc argumentow!");
 		}
 		Decompressor = new Decompressor(dataIn);
 		Decompressor.decompress();
 		dataOut = Decompressor.getDecomprossedData();
-		FileOperations.saveOutputFile(dataOut, "dane_decompress.txt");
+		FileOperations.saveOutputFile(dataOut, "dane_decompress");
 	}
 }

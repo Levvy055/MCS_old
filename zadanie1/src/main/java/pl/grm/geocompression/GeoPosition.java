@@ -3,10 +3,16 @@ package pl.grm.geocompression;
 public class GeoPosition {
 	private float	x;
 	private float	y;
+	private long	lpm;
 	
 	public GeoPosition(float x, float y) {
 		this.x = x;
 		this.y = y;
+	}
+	
+	public GeoPosition(long lpm, float x, float y) {
+		this(x, y);
+		this.lpm = lpm;
 	}
 	
 	public float getX() {
@@ -25,9 +31,21 @@ public class GeoPosition {
 		this.y = y;
 	}
 	
+	public long getLpm() {
+		return lpm;
+	}
+	
+	public void setLpm(long lpm) {
+		this.lpm = lpm;
+	}
+	
 	@Override
 	public String toString() {
-		return "GeoPosition [x=" + this.x + ", y=" + this.y + "]";
+		return "GeoPosition " + lpm + " [x=" + this.x + ", y=" + this.y + "]";
+	}
+	
+	public String toSimplifiedString() {
+		return this.x + "," + this.y;
 	}
 	
 	@Override

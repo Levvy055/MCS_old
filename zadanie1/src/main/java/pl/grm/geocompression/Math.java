@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Math {
 	
-	public static <T> List getDuplicate(Collection<T> list) {
+	public static <T> List getDuplicates(Collection<T> list) {
 		List<T> duplicatedObjects = new ArrayList<T>();
 		Set<T> set = new HashSet<T>() {
 			@Override
@@ -22,7 +22,7 @@ public class Math {
 	}
 	
 	public static <T> boolean hasDuplicate(Collection<T> list) {
-		if (getDuplicate(list).isEmpty())
+		if (getDuplicates(list).isEmpty())
 			return false;
 		return true;
 	}

@@ -2,31 +2,45 @@ package pl.grm.geocompression;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 
 public class FileOperations {
 	
 	public static File getFile(String fileName) throws FileNotFoundException {
 		ClassLoader classLoader = FileOperations.class.getClassLoader();
 		URL resFile = classLoader.getResource(fileName);
-		File file = new File(resFile.getFile());
+		File file;
+		if (resFile != null) {
+			file = new File(resFile.getFile());
+		} else {
+			file = new File(fileName);
+		}
 		if (file == null || !file.exists()) { throw new FileNotFoundException(
 				"Nie znaleziono pliku o nazwie " + fileName); }
 		return file;
 	}
 	
-	public static void saveOutputFile(Data dataOut, String fileName) {
-		File file = new File(fileName);
+	public static void saveOutputFile(Data data, String fileName) throws IOException {
+		File file = new File(fileName + ".txt");
 		int nmb = 1;
 		if (file.exists()) {
 			File tFile;
 			do {
-				tFile = new File(fileName + "." + nmb);
+				tFile = new File(fileName + "." + nmb + ".txt");
 				nmb++;
 			}
-			while (tFile.exists());
-			File file2 = new File(fileName + "." + nmb);
-			file.renameTo(file2);
-			file = new File(fileName);
+			while (tFile.exists() && nmb < 10);
+			file.renameTo(tFile);
+			file = new File(fileName + ".txt");
 		}
+		FileWriter fW = new FileWriter(file);
+		if (data != null) {
+			List<String> list = data.getDataLines();
+			for (String line : list) {
+				fW.write(line);
+			}
+		}
+		fW.flush();
+		fW.close();
 	}
 }
