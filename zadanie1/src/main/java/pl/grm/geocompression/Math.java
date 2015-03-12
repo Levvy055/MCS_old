@@ -4,7 +4,7 @@ import java.util.*;
 
 public class Math {
 	
-	public static <T> List getDuplicates(Collection<T> list) {
+	public static <T> List<T> getDuplicates(Collection<T> list) {
 		List<T> duplicatedObjects = new ArrayList<T>();
 		Set<T> set = new HashSet<T>() {
 			@Override
@@ -25,5 +25,11 @@ public class Math {
 		if (getDuplicates(list).isEmpty())
 			return false;
 		return true;
+	}
+	
+	public static <T> Set<T> getUniqueValues(Collection<T> list) {
+		Set<T> set = new HashSet<T>();
+		set.addAll(list);
+		return set;
 	}
 }

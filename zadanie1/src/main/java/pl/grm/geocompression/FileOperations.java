@@ -20,7 +20,8 @@ public class FileOperations {
 		return file;
 	}
 	
-	public static void saveOutputFile(Data data, String fileName) throws IOException {
+	public static void saveOutputFile(Data data, String fileName, boolean saveGeoPosition)
+			throws IOException {
 		File file = new File(fileName + ".txt");
 		int nmb = 1;
 		if (file.exists()) {
@@ -29,15 +30,22 @@ public class FileOperations {
 				tFile = new File(fileName + "." + nmb + ".txt");
 				nmb++;
 			}
-			while (tFile.exists() && nmb < 10);
+			while (tFile.exists() && nmb < 1);
 			file.renameTo(tFile);
 			file = new File(fileName + ".txt");
 		}
 		FileWriter fW = new FileWriter(file);
 		if (data != null) {
-			List<String> list = data.getDataLines();
-			for (String line : list) {
-				fW.write(line);
+			if (saveGeoPosition) {
+				List<GeoPosition> list = data.getDataAsList();
+				for (GeoPosition gp : list) {
+					fW.write(gp.toString());
+				}
+			} else {
+				List<String> list = data.getDataLines();
+				for (String line : list) {
+					fW.write(line);
+				}
 			}
 		}
 		fW.flush();

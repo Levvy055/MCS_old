@@ -15,6 +15,24 @@ public class GeoPosition {
 		this.lpm = lpm;
 	}
 	
+	public boolean contains(float value) {
+		if (this.x == value || this.y == value) { return true; }
+		return false;
+	}
+	
+	public byte getPosByValue(float v) {
+		byte pos = 0;
+		if (this.x == v && this.y == v) {
+			pos = Data.ALL_I;
+		}
+		if (this.x == v) {
+			pos = Data.X_I;
+		} else if (this.y == v) {
+			pos = Data.Y_I;
+		}
+		return pos;
+	}
+	
 	public float getX() {
 		return this.x;
 	}

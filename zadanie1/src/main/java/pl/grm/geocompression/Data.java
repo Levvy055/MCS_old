@@ -9,6 +9,9 @@ import java.util.stream.*;
 public class Data {
 	private HashMap<Integer, GeoPosition>	geoPositions;
 	private ArrayList<String>				dataInLines;
+	public static final byte				X_I		= 1;
+	public static final byte				Y_I		= 2;
+	public static final byte				ALL_I	= 3;
 	
 	public Data() {
 		this.dataInLines = new ArrayList<String>();
@@ -29,14 +32,14 @@ public class Data {
 		return vMax;
 	}
 	
-	public void loadUncompressedDataFromFile(String filename) throws IOException {
-		File file = FileOperations.getFile(filename);
-		loadUncompressedDataFromFile(file);
-	}
-	
 	public void loadTestDataToCompress(int testID) throws IOException {
 		String fileName = "example_Data/Data" + testID + ".txt";
 		File file = FileOperations.getFile(fileName);
+		loadUncompressedDataFromFile(file);
+	}
+	
+	public void loadUncompressedDataFromFile(String filename) throws IOException {
+		File file = FileOperations.getFile(filename);
 		loadUncompressedDataFromFile(file);
 	}
 	
@@ -54,6 +57,11 @@ public class Data {
 			this.geoPositions.put(lpm, geoPosition);
 		}
 		lines.close();
+	}
+	
+	public void loadCompressedDataFromFile(String filename) {
+		// TODO Auto-generated method stub
+		
 	}
 	
 	public void addString(String str) {
@@ -80,10 +88,5 @@ public class Data {
 	
 	public List<String> getDataLines() {
 		return dataInLines;
-	}
-	
-	public void loadCompressedDataFromFile(String filename) {
-		// TODO Auto-generated method stub
-		
 	}
 }

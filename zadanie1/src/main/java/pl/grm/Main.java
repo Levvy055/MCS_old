@@ -54,7 +54,7 @@ public class Main {
 		compressor = new Compressor(dataIn);
 		compressor.compress();
 		dataOut = compressor.getComprossedData();
-		FileOperations.saveOutputFile(dataOut, "dane_compress");
+		FileOperations.saveOutputFile(dataOut, "dane_compress", false);
 	}
 	
 	private static void decompression(String[] args) throws IOException, ArgumentException {
@@ -69,6 +69,6 @@ public class Main {
 		Decompressor = new Decompressor(dataIn);
 		Decompressor.decompress();
 		dataOut = Decompressor.getDecomprossedData();
-		FileOperations.saveOutputFile(dataOut, "dane_decompress");
+		FileOperations.saveOutputFile(dataOut, "dane_decompress", true);
 	}
 }
