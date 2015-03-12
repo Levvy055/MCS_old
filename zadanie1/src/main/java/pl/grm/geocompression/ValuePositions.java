@@ -24,6 +24,7 @@ public class ValuePositions extends HashMap<Long, Byte> {
 			Byte pos = get(index);
 			string += "i" + index + "p" + pos;
 		}
+		string += "e";
 		return string;
 	}
 }

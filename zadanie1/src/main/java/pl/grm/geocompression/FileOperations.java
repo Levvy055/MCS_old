@@ -39,7 +39,7 @@ public class FileOperations {
 			if (saveGeoPosition) {
 				List<GeoPosition> list = data.getDataAsList();
 				for (GeoPosition gp : list) {
-					fW.write(gp.toString());
+					fW.write(gp.toString() + "\r\n");
 				}
 			} else {
 				List<String> list = data.getDataLines();

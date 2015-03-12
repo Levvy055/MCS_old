@@ -6,6 +6,8 @@ import java.util.*;
 import java.util.Map.Entry;
 import java.util.stream.*;
 
+import pl.grm.misc.*;
+
 public class Data {
 	private HashMap<Integer, GeoPosition>	geoPositions;
 	private ArrayList<String>				dataInLines;
@@ -22,6 +24,10 @@ public class Data {
 		geoPositions.put(getLast() + 1, geoPosition);
 	}
 	
+	public void addString(String str) {
+		dataInLines.add(str);
+	}
+	
 	public void clearLines() {
 		dataInLines.clear();
 	}
@@ -34,6 +40,10 @@ public class Data {
 			vMax = vMax < v ? v : vMax;
 		}
 		return vMax;
+	}
+	
+	public void removeLast() {
+		dataInLines.remove(dataInLines.size() - 1);
 	}
 	
 	public void loadTestDataToCompress(int testID) throws IOException {
@@ -50,11 +60,14 @@ public class Data {
 	public void loadUncompressedDataFromFile(File file) throws IOException {
 		if (file == null || !file.exists()) { throw new FileNotFoundException("Plik "
 				+ file.getName() + " nie istnieje!"); }
+		MLog.info("Loading input data");
 		Stream<String> lines = Files.lines(file.toPath());
+		MLog.info("Converting input data");
 		Stream<String[]> splittedLines = lines.map(line -> line.split(","));
 		Stream<GeoPosition> mappedLines = splittedLines.map(snippets -> new GeoPosition(Float
 				.parseFloat(snippets[0]), Float.parseFloat(snippets[1])));
 		List<GeoPosition> list = mappedLines.collect(Collectors.toList());
+		MLog.info("Injecting input data of " + list.size() + " positions");
 		for (GeoPosition geoPosition : list) {
 			int lpm = getLast() + 1;
 			geoPosition.setLpm(lpm);
@@ -66,14 +79,6 @@ public class Data {
 	public void loadCompressedDataFromFile(String filename) {
 		// TODO Auto-generated method stub
 		
-	}
-	
-	public void addString(String str) {
-		dataInLines.add(str);
-	}
-	
-	public void removeLast() {
-		dataInLines.remove(dataInLines.size() - 1);
 	}
 	
 	public HashMap<Integer, GeoPosition> getDataAsMap() {

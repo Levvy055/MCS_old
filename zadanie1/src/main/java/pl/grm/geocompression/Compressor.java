@@ -27,15 +27,13 @@ public class Compressor {
 	
 	public void compress() {
 		if (dataIn == null) { return; }
-		Logger.print("Input:", dataIn.getDataAsList(), false);
-		@SuppressWarnings("unchecked")
-		HashMap<Integer, GeoPosition> geoPositionsT = (HashMap<Integer, GeoPosition>) dataIn
-				.getDataAsMap().clone();
-		geoPositions = geoPositionsT;
+		dataOut.getDataAsMap().putAll(dataIn.getDataAsMap());
+		MLog.info("Compression started");
+		this.geoPositions = dataIn.getDataAsMap();
 		int positionsCount = geoPositions.size();
-		dataOut.addString(positionsCount + "g");
+		this.dataOut.addString(positionsCount + "e");
 		List<GeoPosition> listData = dataIn.getDataAsList();
-		System.out.println("Compressing ");
+		MLog.info("Compressing ");
 		for (GeoPosition gP : listData) {
 			long lpm = gP.getLpm();
 			float x = gP.getX();
@@ -48,7 +46,8 @@ public class Compressor {
 			}
 			System.out.print(".");
 		}
-		System.out.println("Saving ");
+		MLog.print("Values in map: ", valPositions, true);
+		MLog.info("Saving ");
 		Iterator<Float> it = valPositions.keySet().iterator();
 		while (it.hasNext()) {
 			Float v = it.next();
@@ -56,8 +55,7 @@ public class Compressor {
 			dataOut.addString(v + vP.toSimplifiedString());
 			System.out.print(".");
 		}
-		Logger.print("values in map: ", valPositions, true);
-		Logger.print("Output: ", dataOut.getDataLines(), false);
+		MLog.print("Output: ", dataOut.getDataLines(), false);
 	}
 	
 	private void addValue(float value, long index, byte position) {
