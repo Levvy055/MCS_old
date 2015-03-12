@@ -3,6 +3,7 @@ package pl.grm;
 import java.io.*;
 
 import pl.grm.geocompression.*;
+import pl.grm.misc.*;
 
 public class Main {
 	private static Data	dataIn	= new Data();

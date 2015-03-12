@@ -1,4 +1,4 @@
-package pl.grm.geocompression;
+package pl.grm.misc;
 
 import java.util.*;
 

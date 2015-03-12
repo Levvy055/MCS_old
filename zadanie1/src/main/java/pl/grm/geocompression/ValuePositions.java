@@ -2,7 +2,7 @@ package pl.grm.geocompression;
 
 import java.util.*;
 
-public class ValuePosition extends HashMap<Long, Byte> {
+public class ValuePositions extends HashMap<Long, Byte> {
 	private static final long	serialVersionUID	= 1L;
 	
 	public Collection<String> toStringFullList() {

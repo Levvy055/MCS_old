@@ -22,6 +22,10 @@ public class Data {
 		geoPositions.put(getLast() + 1, geoPosition);
 	}
 	
+	public void clearLines() {
+		dataInLines.clear();
+	}
+	
 	public int getLast() {
 		int vMax = 0;
 		Iterator<Integer> iterator = geoPositions.keySet().iterator();

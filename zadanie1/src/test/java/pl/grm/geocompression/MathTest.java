@@ -8,8 +8,9 @@
 package pl.grm.geocompression;
 
 import org.junit.*;
+
 import static org.junit.Assert.*;
-import pl.grm.geocompression.Math;
+import pl.grm.misc.Math;
 
 
 
