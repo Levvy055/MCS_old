@@ -1,13 +1,15 @@
 package pl.grm.geocompression;
 
+import java.io.*;
 import java.util.*;
+import java.util.zip.*;
 
 import pl.grm.misc.*;
 
 public class Compressor {
 	private Data							dataIn;
 	private Data							dataOut;
-	private HashMap<Integer, GeoPosition>	geoPositions;
+	private HashMap<Long, GeoPosition>		geoPositions;
 	private HashMap<Float, ValuePositions>	valPositions;
 	
 	public Compressor() {
@@ -33,7 +35,8 @@ public class Compressor {
 		int positionsCount = geoPositions.size();
 		this.dataOut.addString(positionsCount + "e");
 		List<GeoPosition> listData = dataIn.getDataAsList();
-		MLog.info("Compressing ");
+		MLog.info("Compressing");
+		MLog.info("Compression 1/3 stage");
 		for (GeoPosition gP : listData) {
 			long lpm = gP.getLpm();
 			float x = gP.getX();
@@ -44,18 +47,51 @@ public class Compressor {
 				addValue(x, lpm, Data.X_I);
 				addValue(y, lpm, Data.Y_I);
 			}
-			System.out.print(".");
 		}
-		MLog.print("Values in map: ", valPositions, true);
-		MLog.info("Saving ");
 		Iterator<Float> it = valPositions.keySet().iterator();
 		while (it.hasNext()) {
 			Float v = it.next();
 			ValuePositions vP = valPositions.get(v);
-			dataOut.addString(v + vP.toSimplifiedString());
-			System.out.print(".");
+			String str = v + vP.toSimplifiedString();
+			dataOut.addString(str);
+			dataOut.addBytes(str.getBytes());
 		}
-		MLog.print("Output: ", dataOut.getDataLines(), false);
+		MLog.info("Compression 2/3 stage");
+		int finalBytesCount = (int) dataOut.getFinalBytesCount();
+		byte[] bytes = new byte[finalBytesCount];
+		List<byte[]> finalByteOutput = dataOut.getFinalByteOutput();
+		int i = 0;
+		for (byte[] bs : finalByteOutput) {
+			for (byte b : bs) {
+				bytes[i] = b;
+				i++;
+			}
+		}
+		MLog.info("Current size: " + finalBytesCount);
+		MLog.info("Compression 3/3 stage");
+		try {
+			Deflater defl = new Deflater();
+			defl.setInput(bytes);
+			defl.finish();
+			byte[] buffer = new byte[1024];
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bytes.length);
+			dataOut.clearFinal();
+			while (!defl.finished()) {
+				int count = defl.deflate(buffer);
+				outputStream.write(buffer, 0, count);
+			}
+			outputStream.close();
+			byte[] output = outputStream.toByteArray();
+			defl.end();
+			dataOut.addBytes(output);
+			MLog.info("Current size: " + output.length);
+		}
+		catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	private void addValue(float value, long index, byte position) {

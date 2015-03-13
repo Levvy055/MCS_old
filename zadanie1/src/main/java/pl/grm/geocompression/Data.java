@@ -9,15 +9,18 @@ import java.util.stream.*;
 import pl.grm.misc.*;
 
 public class Data {
-	private HashMap<Integer, GeoPosition>	geoPositions;
-	private ArrayList<String>				dataInLines;
-	public static final byte				X_I		= 1;
-	public static final byte				Y_I		= 2;
-	public static final byte				ALL_I	= 3;
+	private HashMap<Long, GeoPosition>	geoPositions;
+	private List<String>				dataInLines;
+	private List<byte[]>				finalOutput;
+	private long						finalBytesCount	= 0;
+	public static final byte			X_I				= 1;
+	public static final byte			Y_I				= 2;
+	public static final byte			ALL_I			= 3;
 	
 	public Data() {
 		this.dataInLines = new ArrayList<String>();
-		this.geoPositions = new HashMap<Integer, GeoPosition>();
+		this.geoPositions = new HashMap<Long, GeoPosition>();
+		this.finalOutput = new ArrayList<>();
 	}
 	
 	public void addPositionAfterLast(GeoPosition geoPosition) {
@@ -28,15 +31,25 @@ public class Data {
 		dataInLines.add(str);
 	}
 	
+	public void addBytes(byte[] bytes) {
+		finalBytesCount += bytes.length;
+		finalOutput.add(bytes);
+	}
+	
 	public void clearLines() {
 		dataInLines.clear();
 	}
 	
-	public int getLast() {
-		int vMax = 0;
-		Iterator<Integer> iterator = geoPositions.keySet().iterator();
+	public void clearFinal() {
+		finalOutput = new ArrayList<byte[]>();
+		finalBytesCount = 0;
+	}
+	
+	public long getLast() {
+		long vMax = 0;
+		Iterator<Long> iterator = geoPositions.keySet().iterator();
 		while (iterator.hasNext()) {
-			Integer v = iterator.next();
+			Long v = iterator.next();
 			vMax = vMax < v ? v : vMax;
 		}
 		return vMax;
@@ -67,11 +80,13 @@ public class Data {
 		Stream<GeoPosition> mappedLines = splittedLines.map(snippets -> new GeoPosition(Float
 				.parseFloat(snippets[0]), Float.parseFloat(snippets[1])));
 		List<GeoPosition> list = mappedLines.collect(Collectors.toList());
-		MLog.info("Injecting input data of " + list.size() + " positions");
+		MLog.info("Starting injection of input data with " + list.size() + " positions");
+		long lpm = 1;
 		for (GeoPosition geoPosition : list) {
-			int lpm = getLast() + 1;
 			geoPosition.setLpm(lpm);
 			this.geoPositions.put(lpm, geoPosition);
+			System.out.println("Injected " + lpm + " of " + list.size());
+			lpm++;
 		}
 		lines.close();
 	}
@@ -81,13 +96,13 @@ public class Data {
 		
 	}
 	
-	public HashMap<Integer, GeoPosition> getDataAsMap() {
+	public HashMap<Long, GeoPosition> getDataAsMap() {
 		return geoPositions;
 	}
 	
 	public List<GeoPosition> getDataAsList() {
 		List<GeoPosition> list = new ArrayList<GeoPosition>();
-		Iterator<Entry<Integer, GeoPosition>> iterator = geoPositions.entrySet().iterator();
+		Iterator<Entry<Long, GeoPosition>> iterator = geoPositions.entrySet().iterator();
 		while (iterator.hasNext()) {
 			GeoPosition position = iterator.next().getValue();
 			list.add(position);
@@ -97,5 +112,21 @@ public class Data {
 	
 	public List<String> getDataLines() {
 		return dataInLines;
+	}
+	
+	public List<byte[]> getFinalByteOutput() {
+		return finalOutput;
+	}
+	
+	public String getFinalByteOutputAsString() {
+		String str = "";
+		for (byte[] bs : finalOutput) {
+			str += bs;
+		}
+		return str;
+	}
+	
+	public long getFinalBytesCount() {
+		return finalBytesCount;
 	}
 }

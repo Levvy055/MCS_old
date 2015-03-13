@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import pl.grm.misc.*;
+
 public class FileOperations {
 	
 	public static File getFile(String fileName) throws FileNotFoundException {
@@ -20,8 +22,16 @@ public class FileOperations {
 		return file;
 	}
 	
-	public static void saveOutputFile(Data data, String fileName, boolean saveGeoPosition)
-			throws IOException {
+	/**
+	 * @param data
+	 * @param fileName
+	 * @param type
+	 *            0 - gps positions, 1 - one time compression, 2 -better
+	 *            compression
+	 * @throws IOException
+	 */
+	public static void saveOutputFile(Data data, String fileName, int type) throws IOException {
+		MLog.info("Saving");
 		File file = new File(fileName + ".txt");
 		int nmb = 1;
 		if (file.exists()) {
@@ -36,19 +46,31 @@ public class FileOperations {
 		}
 		FileWriter fW = new FileWriter(file);
 		if (data != null) {
-			if (saveGeoPosition) {
-				List<GeoPosition> list = data.getDataAsList();
-				for (GeoPosition gp : list) {
-					fW.write(gp.toString() + "\r\n");
-				}
-			} else {
-				List<String> list = data.getDataLines();
-				for (String line : list) {
-					fW.write(line);
-				}
+			switch (type) {
+				case 0 :
+					List<GeoPosition> listG = data.getDataAsList();
+					for (GeoPosition gp : listG) {
+						fW.write(gp.toString() + "\r\n");
+					}
+					break;
+				case 1 :
+					List<String> listL = data.getDataLines();
+					for (String line : listL) {
+						fW.write(line);
+					}
+					break;
+				case 2 :
+					List<byte[]> listB = data.getFinalByteOutput();
+					for (byte[] line : listB) {
+						fW.write(new String(line));
+					}
+					break;
+				default :
+					break;
 			}
 		}
 		fW.flush();
 		fW.close();
+		MLog.info("Output file Saved");
 	}
 }
