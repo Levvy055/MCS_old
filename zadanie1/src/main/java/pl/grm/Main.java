@@ -43,7 +43,7 @@ public class Main {
 		} else if (args.length == 3) {
 			int testID;
 			if (args[1].equals("-test")) {
-				if ((testID = Integer.parseInt(args[2])) > 0 && testID < 5) {
+				if ((testID = Integer.parseInt(args[2])) > 0 && testID < 6) {
 					dataIn.loadTestDataToCompress(testID);
 				} else {
 					throw new ArgumentException("Brak testu dla wskazanego ID");
@@ -55,7 +55,7 @@ public class Main {
 		compressor = new Compressor(dataIn);
 		compressor.compress();
 		dataOut = compressor.getComprossedData();
-		FileOperations.saveOutputFile(dataOut, "dane_compress", 2);
+		FileOperations.saveOutputFile(dataOut, "dane_compress", 2, 0);
 	}
 	
 	private static void decompression(String[] args) throws IOException, ArgumentException {
@@ -70,6 +70,6 @@ public class Main {
 		Decompressor = new Decompressor(dataIn);
 		Decompressor.decompress();
 		dataOut = Decompressor.getDecomprossedData();
-		FileOperations.saveOutputFile(dataOut, "dane_decompress", 2);
+		FileOperations.saveOutputFile(dataOut, "dane_decompress", 0, 0);
 	}
 }

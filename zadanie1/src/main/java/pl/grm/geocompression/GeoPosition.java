@@ -5,6 +5,11 @@ public class GeoPosition {
 	private float	y;
 	private long	lpm;
 	
+	public GeoPosition(long lpm) {
+		this(0, 0);
+		this.lpm = lpm;
+	}
+	
 	public GeoPosition(float x, float y) {
 		this.x = x;
 		this.y = y;
@@ -63,7 +68,17 @@ public class GeoPosition {
 	}
 	
 	public String toSimplifiedString() {
+		return "X=" + this.x + ", Y=" + this.y;
+	}
+	
+	public String toMinimalString() {
 		return this.x + "," + this.y;
+	}
+	
+	public String toMinimalIntString() {
+		String mS = toMinimalString();
+		mS = mS.replaceAll("\\.0", "");
+		return mS;
 	}
 	
 	@Override

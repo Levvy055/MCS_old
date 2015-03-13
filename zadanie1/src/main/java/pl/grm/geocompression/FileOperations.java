@@ -28,9 +28,11 @@ public class FileOperations {
 	 * @param type
 	 *            0 - gps positions, 1 - one time compression, 2 -better
 	 *            compression
+	 * @param for0TypeExpLvl
 	 * @throws IOException
 	 */
-	public static void saveOutputFile(Data data, String fileName, int type) throws IOException {
+	public static void saveOutputFile(Data data, String fileName, int type, int for0TypeExpLvl)
+			throws IOException {
 		MLog.info("Saving");
 		File file = new File(fileName + ".txt");
 		int nmb = 1;
@@ -49,8 +51,26 @@ public class FileOperations {
 			switch (type) {
 				case 0 :
 					List<GeoPosition> listG = data.getDataAsList();
-					for (GeoPosition gp : listG) {
-						fW.write(gp.toString() + "\r\n");
+					for (int i = 0; i < listG.size(); i++) {
+						GeoPosition gp = listG.get(i);
+						switch (for0TypeExpLvl) {
+							case 0 :
+								fW.write(gp.toMinimalIntString()
+										+ (i == (listG.size() - 1) ? "" : "\r\n"));
+								break;
+							case 1 :
+								fW.write(gp.toMinimalString() + "\r\n");
+								break;
+							case 2 :
+								fW.write(gp.toSimplifiedString() + "\r\n");
+								break;
+							case 3 :
+								fW.write(gp.toString() + "\r\n");
+								break;
+							default :
+								break;
+						}
+						
 					}
 					break;
 				case 1 :

@@ -12,6 +12,7 @@ public class Data {
 	private HashMap<Long, GeoPosition>	geoPositions;
 	private List<String>				stringList;
 	private List<byte[]>				byteList;
+	public InputStream					in;
 	private long						finalBytesCountInList	= 0;
 	public static final byte			X_I						= 1;
 	public static final byte			Y_I						= 2;
@@ -101,6 +102,7 @@ public class Data {
 		Path path = Paths.get(filename);
 		byte[] data = Files.readAllBytes(path);
 		addBytes(data);
+		in = new FileInputStream(filename);
 	}
 	
 	public HashMap<Long, GeoPosition> getDataAsMap() {
@@ -128,12 +130,18 @@ public class Data {
 	public String getByteListAsString() {
 		String str = "";
 		for (byte[] bs : byteList) {
-			str += bs;
+			for (byte b : bs) {
+				str += b + " ";
+			}
 		}
 		return str;
 	}
 	
 	public long getBytesListContentCount() {
 		return finalBytesCountInList;
+	}
+	
+	public void addAllGeoPositions(HashMap<Long, GeoPosition> gPMap) {
+		this.geoPositions.putAll(gPMap);
 	}
 }

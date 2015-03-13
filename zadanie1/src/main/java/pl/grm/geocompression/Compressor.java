@@ -2,7 +2,6 @@ package pl.grm.geocompression;
 
 import java.io.*;
 import java.util.*;
-import java.util.zip.*;
 
 import pl.grm.misc.*;
 
@@ -20,41 +19,32 @@ public class Compressor {
 	public Compressor(Data dataIn) {
 		this();
 		this.dataIn = dataIn;
+		dataOut.getDataAsMap().putAll(dataIn.getDataAsMap());
 	}
 	
 	public void compress(Data dataIn) {
 		this.dataIn = dataIn;
+		dataOut.getDataAsMap().putAll(dataIn.getDataAsMap());
 		compress();
 	}
 	
 	public void compress() {
 		if (dataIn == null) { return; }
-		dataOut.getDataAsMap().putAll(dataIn.getDataAsMap());
+		convertToVP();
 		MLog.info("Compression started");
-		this.geoPositions = dataIn.getDataAsMap();
-		int positionsCount = geoPositions.size();
-		this.dataOut.addString(positionsCount + "e");
-		List<GeoPosition> listData = dataIn.getDataAsList();
-		MLog.info("Compressing");
 		MLog.info("Compression 1/3 stage");
-		for (GeoPosition gP : listData) {
-			long lpm = gP.getLpm();
-			float x = gP.getX();
-			float y = gP.getY();
-			if (x == y) {
-				addValue(x, lpm, Data.ALL_I);
-			} else {
-				addValue(x, lpm, Data.X_I);
-				addValue(y, lpm, Data.Y_I);
-			}
-		}
 		Iterator<Float> it = valPositions.keySet().iterator();
 		while (it.hasNext()) {
 			Float v = it.next();
 			ValuePositions vP = valPositions.get(v);
 			String str = v + vP.toSimplifiedString();
 			dataOut.addString(str);
-			dataOut.addBytes(str.getBytes());
+			try {
+				dataOut.addBytes(str.getBytes("UTF-8"));
+			}
+			catch (UnsupportedEncodingException e) {
+				e.printStackTrace();
+			}
 		}
 		MLog.info("Compression 2/3 stage");
 		int finalBytesCount = (int) dataOut.getBytesListContentCount();
@@ -69,28 +59,38 @@ public class Compressor {
 		}
 		MLog.info("Current size: " + finalBytesCount);
 		MLog.info("Compression 3/3 stage");
+		byte[] output = compressBytes(bytes);
+		dataOut.clearByteList();
+		dataOut.addBytes(output);
+		MLog.info("Current size: " + output.length);
+	}
+	
+	public byte[] compressBytes(byte[] bytes) {
+		// TODO Auto-generated method stub
+		return bytes;
+	}
+	
+	public void convertToVP() {
+		this.geoPositions = dataOut.getDataAsMap();
+		int positionsCount = geoPositions.size();
 		try {
-			Deflater defl = new Deflater();
-			defl.setInput(bytes);
-			defl.finish();
-			byte[] buffer = new byte[1024];
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bytes.length);
-			dataOut.clearByteList();
-			while (!defl.finished()) {
-				int count = defl.deflate(buffer);
-				outputStream.write(buffer, 0, count);
-			}
-			outputStream.close();
-			byte[] output = outputStream.toByteArray();
-			defl.end();
-			dataOut.addBytes(output);
-			MLog.info("Current size: " + output.length);
+			this.dataOut.addString(positionsCount + "e");
+			this.dataOut.addBytes((positionsCount + "e").getBytes("UTF-8"));
 		}
 		catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
-		catch (IOException e) {
-			e.printStackTrace();
+		List<GeoPosition> listData = dataOut.getDataAsList();
+		for (GeoPosition gP : listData) {
+			long lpm = gP.getLpm();
+			float x = gP.getX();
+			float y = gP.getY();
+			if (x == y) {
+				addValue(x, lpm, Data.ALL_I);
+			} else {
+				addValue(x, lpm, Data.X_I);
+				addValue(y, lpm, Data.Y_I);
+			}
 		}
 	}
 	
