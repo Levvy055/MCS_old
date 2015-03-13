@@ -18,7 +18,7 @@ public class MLog {
 		catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-		this.logger = loggerR;
+		MLog.logger = loggerR;
 	}
 	
 	public static Logger setupLogger(String fileName) throws IllegalArgumentException {

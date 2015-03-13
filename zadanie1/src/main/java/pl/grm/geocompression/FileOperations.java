@@ -54,13 +54,13 @@ public class FileOperations {
 					}
 					break;
 				case 1 :
-					List<String> listL = data.getDataLines();
+					List<String> listL = data.getStringList();
 					for (String line : listL) {
 						fW.write(line);
 					}
 					break;
 				case 2 :
-					List<byte[]> listB = data.getFinalByteOutput();
+					List<byte[]> listB = data.getByteList();
 					for (byte[] line : listB) {
 						fW.write(new String(line));
 					}

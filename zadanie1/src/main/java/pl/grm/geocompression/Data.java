@@ -10,42 +10,48 @@ import pl.grm.misc.*;
 
 public class Data {
 	private HashMap<Long, GeoPosition>	geoPositions;
-	private List<String>				dataInLines;
-	private List<byte[]>				finalOutput;
-	private long						finalBytesCount	= 0;
-	public static final byte			X_I				= 1;
-	public static final byte			Y_I				= 2;
-	public static final byte			ALL_I			= 3;
+	private List<String>				stringList;
+	private List<byte[]>				byteList;
+	private long						finalBytesCountInList	= 0;
+	public static final byte			X_I						= 1;
+	public static final byte			Y_I						= 2;
+	public static final byte			ALL_I					= 3;
 	
 	public Data() {
-		this.dataInLines = new ArrayList<String>();
+		this.stringList = new ArrayList<String>();
 		this.geoPositions = new HashMap<Long, GeoPosition>();
-		this.finalOutput = new ArrayList<>();
+		this.byteList = new ArrayList<>();
 	}
 	
-	public void addPositionAfterLast(GeoPosition geoPosition) {
-		geoPositions.put(getLast() + 1, geoPosition);
+	public void addGeoPositionAfterLast(GeoPosition geoPosition) {
+		geoPositions.put(getLastID() + 1, geoPosition);
 	}
 	
 	public void addString(String str) {
-		dataInLines.add(str);
+		stringList.add(str);
 	}
 	
 	public void addBytes(byte[] bytes) {
-		finalBytesCount += bytes.length;
-		finalOutput.add(bytes);
+		finalBytesCountInList += bytes.length;
+		byteList.add(bytes);
 	}
 	
-	public void clearLines() {
-		dataInLines.clear();
+	public void addAllBytes(List<byte[]> byteList2) {
+		for (byte[] bs : byteList2) {
+			addBytes(bs);
+		}
 	}
 	
-	public void clearFinal() {
-		finalOutput = new ArrayList<byte[]>();
-		finalBytesCount = 0;
+	public void clearStringList() {
+		stringList.clear();
 	}
 	
-	public long getLast() {
+	public void clearByteList() {
+		byteList = new ArrayList<byte[]>();
+		finalBytesCountInList = 0;
+	}
+	
+	public long getLastID() {
 		long vMax = 0;
 		Iterator<Long> iterator = geoPositions.keySet().iterator();
 		while (iterator.hasNext()) {
@@ -55,8 +61,8 @@ public class Data {
 		return vMax;
 	}
 	
-	public void removeLast() {
-		dataInLines.remove(dataInLines.size() - 1);
+	public void removeLastString() {
+		stringList.remove(stringList.size() - 1);
 	}
 	
 	public void loadTestDataToCompress(int testID) throws IOException {
@@ -91,9 +97,10 @@ public class Data {
 		lines.close();
 	}
 	
-	public void loadCompressedDataFromFile(String filename) {
-		// TODO Auto-generated method stub
-		
+	public void loadCompressedDataFromFile(String filename) throws IOException {
+		Path path = Paths.get(filename);
+		byte[] data = Files.readAllBytes(path);
+		addBytes(data);
 	}
 	
 	public HashMap<Long, GeoPosition> getDataAsMap() {
@@ -110,23 +117,23 @@ public class Data {
 		return list;
 	}
 	
-	public List<String> getDataLines() {
-		return dataInLines;
+	public List<String> getStringList() {
+		return stringList;
 	}
 	
-	public List<byte[]> getFinalByteOutput() {
-		return finalOutput;
+	public List<byte[]> getByteList() {
+		return byteList;
 	}
 	
-	public String getFinalByteOutputAsString() {
+	public String getByteListAsString() {
 		String str = "";
-		for (byte[] bs : finalOutput) {
+		for (byte[] bs : byteList) {
 			str += bs;
 		}
 		return str;
 	}
 	
-	public long getFinalBytesCount() {
-		return finalBytesCount;
+	public long getBytesListContentCount() {
+		return finalBytesCountInList;
 	}
 }

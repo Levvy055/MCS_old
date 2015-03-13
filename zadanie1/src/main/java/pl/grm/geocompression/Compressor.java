@@ -57,9 +57,9 @@ public class Compressor {
 			dataOut.addBytes(str.getBytes());
 		}
 		MLog.info("Compression 2/3 stage");
-		int finalBytesCount = (int) dataOut.getFinalBytesCount();
+		int finalBytesCount = (int) dataOut.getBytesListContentCount();
 		byte[] bytes = new byte[finalBytesCount];
-		List<byte[]> finalByteOutput = dataOut.getFinalByteOutput();
+		List<byte[]> finalByteOutput = dataOut.getByteList();
 		int i = 0;
 		for (byte[] bs : finalByteOutput) {
 			for (byte b : bs) {
@@ -75,7 +75,7 @@ public class Compressor {
 			defl.finish();
 			byte[] buffer = new byte[1024];
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream(bytes.length);
-			dataOut.clearFinal();
+			dataOut.clearByteList();
 			while (!defl.finished()) {
 				int count = defl.deflate(buffer);
 				outputStream.write(buffer, 0, count);
