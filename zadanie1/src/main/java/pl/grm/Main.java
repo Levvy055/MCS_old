@@ -60,7 +60,7 @@ public class Main {
 	
 	private static void decompression(String[] args) throws IOException, ArgumentException {
 		Decompressor Decompressor;
-		Data dataOut;
+		Data dataOut = null;
 		if (args.length == 2) {
 			String filename = args[1];
 			dataIn.loadCompressedDataFromFile(filename);
@@ -68,8 +68,13 @@ public class Main {
 			throw new ArgumentException("Bledna ilosc argumentow!");
 		}
 		Decompressor = new Decompressor(dataIn);
-		Decompressor.decompress();
-		dataOut = Decompressor.getDecomprossedData();
+		try {
+			Decompressor.decompress();
+			dataOut = Decompressor.getDecomprossedData();
+		}
+		catch (InputDataCorruptedException e) {
+			e.printStackTrace();
+		}
 		FileOperations.saveOutputFile(dataOut, "dane_decompress", 0, 0);
 	}
 }
