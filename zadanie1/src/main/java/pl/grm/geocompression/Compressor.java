@@ -30,8 +30,8 @@ public class Compressor {
 	
 	public void compress() {
 		if (dataIn == null) { return; }
+		MLog.info("Converting");
 		convertToVP();
-		MLog.info("Compression started");
 		MLog.info("Compression 1/3 stage");
 		Iterator<Float> it = valPositions.keySet().iterator();
 		while (it.hasNext()) {
@@ -64,7 +64,8 @@ public class Compressor {
 		byte[] output = compressBytes(bytes);
 		dataOut.clearByteList();
 		dataOut.addBytes(output);
-		MLog.info("Current size: " + output.length);
+		MLog.info("Current bytes amount: " + output.length);
+		MLog.info("Compression completed");
 	}
 	
 	public byte[] compressBytes(byte[] bytes) {

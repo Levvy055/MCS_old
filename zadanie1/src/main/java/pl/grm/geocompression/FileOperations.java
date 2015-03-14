@@ -55,17 +55,17 @@ public class FileOperations {
 						GeoPosition gp = listG.get(i);
 						switch (for0TypeExpLvl) {
 							case 0 :
-								fW.write(gp.toMinimalLikeIntString()
-										+ (i == (listG.size() - 1) ? "" : "\r\n"));
+								fW.write(gp.toMinimalLikeIntString().concat(
+										(i == (listG.size() - 1) ? "" : "\r\n")));
 								break;
 							case 1 :
-								fW.write(gp.toMinimalString() + "\r\n");
+								fW.write(gp.toMinimalString().concat("\r\n"));
 								break;
 							case 2 :
-								fW.write(gp.toSimplifiedString() + "\r\n");
+								fW.write(gp.toSimplifiedString().concat("\r\n"));
 								break;
 							case 3 :
-								fW.write(gp.toString() + "\r\n");
+								fW.write(gp.toString().concat("\r\n"));
 								break;
 							default :
 								break;

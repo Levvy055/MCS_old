@@ -11,7 +11,7 @@ public class ValuePositions extends TreeMap<Long, Byte> {
 		while (it.hasNext()) {
 			Long index = it.next();
 			Byte pos = get(index);
-			set.add("index: " + index + " P: " + pos);
+			set.add("index: ".concat(index + " P: " + pos));
 		}
 		return set;
 	}
@@ -22,13 +22,8 @@ public class ValuePositions extends TreeMap<Long, Byte> {
 		while (it.hasNext()) {
 			Long index = it.next();
 			Byte pos = get(index);
-			string += "i" + index + "p" + pos;
+			string = string.concat("i" + index + "p" + pos);
 		}
-		string += "e";
-		return string;
-	}
-	
-	public void sort() {
-		
+		return string.concat("e");
 	}
 }

@@ -9,6 +9,7 @@ public class Decompressor {
 	private Data							dataOut;
 	private HashMap<Long, GeoPosition>		geoPositions;
 	private HashMap<Float, ValuePositions>	valPositions;
+	private int								geoPositionsAmount;
 	
 	public Decompressor() {
 		dataOut = new Data();
@@ -33,6 +34,7 @@ public class Decompressor {
 		MLog.info("Decompressing 1/3");
 		int bytesCount = (int) dataIn.getBytesListContentCount();
 		List<byte[]> byteList = dataIn.getByteList();
+		MLog.info("Loaded " + bytesCount + " bytes in " + byteList.size() + " elements of list.");
 		byte[] data = new byte[bytesCount];
 		int i = 0;
 		for (byte[] bs : byteList) {
@@ -46,7 +48,11 @@ public class Decompressor {
 		this.valPositions.putAll(parseToValuePositions(outputS));
 		MLog.info("Decompressing 3/3");
 		this.geoPositions.putAll(parseToGeoPositions(valPositions));
+		if (geoPositions.size() != geoPositionsAmount) { throw new InputDataCorruptedException(
+				"Brakuje wszystkich pozycji.\nIndeks wskazuje na: " + geoPositionsAmount
+						+ " \nWykryto " + geoPositions.size()); }
 		dataOut.addAllGeoPositions(geoPositions);
+		MLog.info("Decompression completed");
 	}
 	
 	public Map<Float, ValuePositions> parseToValuePositions(String outputS)
@@ -54,14 +60,13 @@ public class Decompressor {
 		Map<Float, ValuePositions> parsedPos = new TreeMap<Float, ValuePositions>();
 		int headerEndIndex = outputS.indexOf('e');
 		String header = outputS.substring(0, headerEndIndex);
-		int posMaxCount = Integer.parseInt(header);
+		geoPositionsAmount = Integer.parseInt(header);
 		MLog.info("Positions in file: " + header);
 		int iE = outputS.indexOf('e', headerEndIndex + 1);
 		int liEpO = headerEndIndex + 1;
 		String workingString;
 		while (iE != -1) {
 			workingString = outputS.substring(liEpO, iE);
-			System.out.println(workingString);
 			List<Integer> iI = new ArrayList<Integer>();
 			for (int iIT = workingString.indexOf('i'); iIT >= 0; iIT = workingString.indexOf('i',
 					iIT + 1)) {
@@ -94,7 +99,6 @@ public class Decompressor {
 			liEpO = iE + 1;
 			iE = outputS.indexOf('e', iE + 1);
 		}
-		MLog.print("O ", parsedPos, true);
 		return parsedPos;
 	}
 	
@@ -124,6 +128,8 @@ public class Decompressor {
 						break;
 					case Data.Y_I :
 						gP.setY(value);
+						break;
+					default :
 						break;
 				}
 				geoPos.put(index, gP);

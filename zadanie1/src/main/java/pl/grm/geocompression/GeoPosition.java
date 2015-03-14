@@ -20,6 +20,11 @@ public class GeoPosition {
 		this.lpm = lpm;
 	}
 	
+	public GeoPosition(String sX, String sY) {
+		this.x = Float.parseFloat(sX);
+		this.y = Float.parseFloat(sY);
+	}
+	
 	public boolean contains(float value) {
 		if (this.x == value || this.y == value) { return true; }
 		return false;
@@ -72,7 +77,7 @@ public class GeoPosition {
 	}
 	
 	public String toMinimalString() {
-		return this.x + "," + this.y;
+		return String.format("%.6f", this.x) + "," + String.format("%.6f", this.y);
 	}
 	
 	public String toMinimalLikeIntString() {

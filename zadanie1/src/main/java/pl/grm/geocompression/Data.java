@@ -84,15 +84,14 @@ public class Data {
 		Stream<String> lines = Files.lines(file.toPath());
 		MLog.info("Converting input data");
 		Stream<String[]> splittedLines = lines.map(line -> line.split(","));
-		Stream<GeoPosition> mappedLines = splittedLines.map(snippets -> new GeoPosition(Float
-				.parseFloat(snippets[0]), Float.parseFloat(snippets[1])));
+		Stream<GeoPosition> mappedLines = splittedLines.map(snippets -> new GeoPosition(
+				snippets[0], snippets[1]));
 		List<GeoPosition> list = mappedLines.collect(Collectors.toList());
 		MLog.info("Starting injection of input data with " + list.size() + " positions");
 		long lpm = 1;
 		for (GeoPosition geoPosition : list) {
 			geoPosition.setLpm(lpm);
 			this.geoPositions.put(lpm, geoPosition);
-			System.out.println("Injected " + lpm + " of " + list.size());
 			lpm++;
 		}
 		lines.close();
