@@ -2,7 +2,7 @@ package pl.grm.geocompression;
 
 import java.util.*;
 
-public class ValuePositions extends HashMap<Long, Byte> {
+public class ValuePositions extends TreeMap<Long, Byte> {
 	private static final long	serialVersionUID	= 1L;
 	
 	public Collection<String> toStringFullList() {
@@ -26,5 +26,9 @@ public class ValuePositions extends HashMap<Long, Byte> {
 		}
 		string += "e";
 		return string;
+	}
+	
+	public void sort() {
+		
 	}
 }

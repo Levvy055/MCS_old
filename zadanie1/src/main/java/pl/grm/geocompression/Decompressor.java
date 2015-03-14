@@ -30,6 +30,7 @@ public class Decompressor {
 	
 	public void decompress() {
 		if (dataIn == null) { return; }
+		MLog.info("Decompressing 1/3");
 		int bytesCount = (int) dataIn.getBytesListContentCount();
 		List<byte[]> byteList = dataIn.getByteList();
 		byte[] data = new byte[bytesCount];
@@ -41,7 +42,9 @@ public class Decompressor {
 			}
 		}
 		String outputS = new String(data);
+		MLog.info("Decompressing 2/3");
 		this.valPositions.putAll(parseToValuePositions(outputS));
+		MLog.info("Decompressing 3/3");
 		this.geoPositions.putAll(parseToGeoPositions(valPositions));
 		dataOut.addAllGeoPositions(geoPositions);
 	}
@@ -52,33 +55,38 @@ public class Decompressor {
 		String header = outputS.substring(0, headerEndIndex);
 		int posMaxCount = Integer.parseInt(header);
 		MLog.info("Positions in file: " + header);
-		String workingString = outputS.substring(headerEndIndex + 1, outputS.length());
-		System.out.println(workingString);
-		int currentPosCount = 0;
-		while (currentPosCount < posMaxCount * 2) {
+		int iE = outputS.indexOf('e', headerEndIndex + 1);
+		int liEpO = headerEndIndex + 1;
+		String workingString;
+		while (iE != -1) {
+			workingString = outputS.substring(liEpO, iE);
+			System.out.println(workingString);
 			int iI = workingString.indexOf('i');
 			int iP = workingString.indexOf('p');
-			int iE = workingString.indexOf('e');
-			if (iE == 0)
-				iE = workingString.length();
-			String vS = workingString.substring(0, iI);
-			Float value = Float.parseFloat(vS);
-			String iS = workingString.substring(iI + 1, iP);
-			long index = Long.parseLong(iS);
-			String pS = workingString.substring(iP + 1, iE);
-			byte position = Byte.parseByte(pS);
-			ValuePositions vP;
-			if (parsedPos.containsKey(value)) {
-				vP = parsedPos.get(value);
-			} else {
-				vP = new ValuePositions();
-				parsedPos.put(value, vP);
+			int liPpT = 0;
+			while (iP < iE && iP != -1) {
+				String vS = workingString.substring(liPpT, iI);
+				Float value = Float.parseFloat(vS);
+				String iS = workingString.substring(iI + 1, iP);
+				long index = Long.parseLong(iS);
+				String pS = workingString.substring(iP + 1, iP + 2);
+				byte position = Byte.parseByte(pS);
+				ValuePositions vP;
+				if (parsedPos.containsKey(value)) {
+					vP = parsedPos.get(value);
+				} else {
+					vP = new ValuePositions();
+					parsedPos.put(value, vP);
+				}
+				vP.put(index, position);
+				liPpT = iP + 1;
+				iP = workingString.indexOf('p', iP + 1);
+				iI = workingString.indexOf('i', iI + 1);
 			}
-			vP.put(index, position);
-			workingString = workingString.substring(iE + 1, workingString.length());
-			currentPosCount++;
+			liEpO = iE + 1;
+			iE = outputS.indexOf('e', iE + 1);
 		}
-		MLog.print("O ", parsedPos, false);
+		MLog.print("O ", parsedPos, true);
 		return parsedPos;
 	}
 	

@@ -8,12 +8,12 @@ import pl.grm.misc.*;
 public class Compressor {
 	private Data							dataIn;
 	private Data							dataOut;
-	private HashMap<Long, GeoPosition>		geoPositions;
-	private HashMap<Float, ValuePositions>	valPositions;
+	private TreeMap<Long, GeoPosition>		geoPositions;
+	private TreeMap<Float, ValuePositions>	valPositions;
 	
 	public Compressor() {
 		dataOut = new Data();
-		valPositions = new HashMap<>();
+		valPositions = new TreeMap<>();
 	}
 	
 	public Compressor(Data dataIn) {
@@ -37,7 +37,9 @@ public class Compressor {
 		while (it.hasNext()) {
 			Float v = it.next();
 			ValuePositions vP = valPositions.get(v);
-			String str = v + vP.toSimplifiedString();
+			int w = Math.round(v);
+			String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
+			String str = valToStore + vP.toSimplifiedString();
 			dataOut.addString(str);
 			try {
 				dataOut.addBytes(str.getBytes("UTF-8"));

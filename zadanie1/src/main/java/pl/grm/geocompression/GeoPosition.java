@@ -75,9 +75,10 @@ public class GeoPosition {
 		return this.x + "," + this.y;
 	}
 	
-	public String toMinimalIntString() {
+	public String toMinimalLikeIntString() {
 		String mS = toMinimalString();
-		mS = mS.replaceAll("\\.0", "");
+		mS = mS.replaceAll("\\.0$", "");
+		mS = mS.replaceAll("\\.0,", ",");
 		return mS;
 	}
 	

@@ -55,7 +55,7 @@ public class FileOperations {
 						GeoPosition gp = listG.get(i);
 						switch (for0TypeExpLvl) {
 							case 0 :
-								fW.write(gp.toMinimalIntString()
+								fW.write(gp.toMinimalLikeIntString()
 										+ (i == (listG.size() - 1) ? "" : "\r\n"));
 								break;
 							case 1 :

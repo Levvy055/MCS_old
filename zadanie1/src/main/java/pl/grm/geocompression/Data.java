@@ -9,7 +9,7 @@ import java.util.stream.*;
 import pl.grm.misc.*;
 
 public class Data {
-	private HashMap<Long, GeoPosition>	geoPositions;
+	private TreeMap<Long, GeoPosition>	geoPositions;
 	private List<String>				stringList;
 	private List<byte[]>				byteList;
 	public InputStream					in;
@@ -20,7 +20,7 @@ public class Data {
 	
 	public Data() {
 		this.stringList = new ArrayList<String>();
-		this.geoPositions = new HashMap<Long, GeoPosition>();
+		this.geoPositions = new TreeMap<Long, GeoPosition>();
 		this.byteList = new ArrayList<>();
 	}
 	
@@ -105,7 +105,7 @@ public class Data {
 		in = new FileInputStream(filename);
 	}
 	
-	public HashMap<Long, GeoPosition> getDataAsMap() {
+	public TreeMap<Long, GeoPosition> getDataAsMap() {
 		return geoPositions;
 	}
 	
