@@ -72,7 +72,7 @@ public class Main {
 		Data dataIn = new Data();
 		Data dataOut;
 		if (test) {
-			if (testID > 0 && testID < 5) {
+			if (testID > 0 && testID < 3) {
 				dataIn.loadTestDataToCompress(testID);
 			} else {
 				throw new ArgumentException("Brak testu dla wskazanego ID");
