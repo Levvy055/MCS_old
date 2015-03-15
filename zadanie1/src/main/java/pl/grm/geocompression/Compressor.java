@@ -9,7 +9,7 @@ public class Compressor {
 	private Data							dataIn;
 	private Data							dataOut;
 	private TreeMap<Long, GeoPosition>		geoPositions;
-	private TreeMap<Float, ValuePositions>	valPositions;
+	private TreeMap<Double, ValuePositions>	valPositions;
 	
 	public Compressor() {
 		dataOut = new Data();
@@ -33,11 +33,11 @@ public class Compressor {
 		MLog.info("Converting");
 		convertToVP();
 		MLog.info("Compression 1/3 stage");
-		Iterator<Float> it = valPositions.keySet().iterator();
+		Iterator<Double> it = valPositions.keySet().iterator();
 		while (it.hasNext()) {
-			Float v = it.next();
+			double v = it.next();
 			ValuePositions vP = valPositions.get(v);
-			int w = Math.round(v);
+			int w = (int) Math.round(v);
 			String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
 			String str = valToStore + vP.toSimplifiedString();
 			dataOut.addString(str);
@@ -86,8 +86,8 @@ public class Compressor {
 		List<GeoPosition> listData = dataOut.getDataAsList();
 		for (GeoPosition gP : listData) {
 			long lpm = gP.getLpm();
-			float x = gP.getX();
-			float y = gP.getY();
+			double x = gP.getX();
+			double y = gP.getY();
 			if (x == y) {
 				addValue(x, lpm, Data.ALL_I);
 			} else {
@@ -97,13 +97,13 @@ public class Compressor {
 		}
 	}
 	
-	private void addValue(float value, long index, byte position) {
+	private void addValue(double x, long index, byte position) {
 		ValuePositions vP;
-		if (valPositions.containsKey(value)) {
-			vP = valPositions.get(value);
+		if (valPositions.containsKey(x)) {
+			vP = valPositions.get(x);
 		} else {
 			vP = new ValuePositions();
-			valPositions.put(value, vP);
+			valPositions.put(x, vP);
 		}
 		vP.put(index, position);
 	}

@@ -8,7 +8,7 @@ public class Decompressor {
 	private Data							dataIn;
 	private Data							dataOut;
 	private HashMap<Long, GeoPosition>		geoPositions;
-	private HashMap<Float, ValuePositions>	valPositions;
+	private HashMap<Double, ValuePositions>	valPositions;
 	private int								geoPositionsAmount;
 	
 	public Decompressor() {
@@ -55,9 +55,9 @@ public class Decompressor {
 		MLog.info("Decompression completed");
 	}
 	
-	public Map<Float, ValuePositions> parseToValuePositions(String outputS)
+	public Map<Double, ValuePositions> parseToValuePositions(String outputS)
 			throws InputDataCorruptedException {
-		Map<Float, ValuePositions> parsedPos = new TreeMap<Float, ValuePositions>();
+		Map<Double, ValuePositions> parsedPos = new TreeMap<Double, ValuePositions>();
 		int headerEndIndex = outputS.indexOf('e');
 		String header = outputS.substring(0, headerEndIndex);
 		geoPositionsAmount = Integer.parseInt(header);
@@ -78,7 +78,7 @@ public class Decompressor {
 				iP.add(iPT);
 			}
 			String vS = workingString.substring(0, iI.get(0));
-			Float value = Float.parseFloat(vS);
+			double value = Double.parseDouble(vS);
 			if (iP.size() != iI.size()) { throw new InputDataCorruptedException(""); }
 			for (int i = 0; i < iI.size(); i++) {
 				ValuePositions vP;
@@ -102,11 +102,11 @@ public class Decompressor {
 		return parsedPos;
 	}
 	
-	public Map<Long, GeoPosition> parseToGeoPositions(HashMap<Float, ValuePositions> vPos) {
+	public Map<Long, GeoPosition> parseToGeoPositions(HashMap<Double, ValuePositions> vPos) {
 		Map<Long, GeoPosition> geoPos = new HashMap<Long, GeoPosition>();
-		Iterator<Float> iterator = vPos.keySet().iterator();
+		Iterator<Double> iterator = vPos.keySet().iterator();
 		while (iterator.hasNext()) {
-			Float value = iterator.next();
+			double value = iterator.next();
 			ValuePositions vPositions = vPos.get(value);
 			Iterator<Long> it = vPositions.keySet().iterator();
 			while (it.hasNext()) {

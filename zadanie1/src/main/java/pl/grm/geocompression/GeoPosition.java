@@ -1,8 +1,8 @@
 package pl.grm.geocompression;
 
 public class GeoPosition {
-	private float	x;
-	private float	y;
+	private double	x;
+	private double	y;
 	private long	lpm;
 	
 	public GeoPosition(long lpm) {
@@ -10,27 +10,27 @@ public class GeoPosition {
 		this.lpm = lpm;
 	}
 	
-	public GeoPosition(float x, float y) {
+	public GeoPosition(double x, double y) {
 		this.x = x;
 		this.y = y;
 	}
 	
-	public GeoPosition(long lpm, float x, float y) {
+	public GeoPosition(long lpm, double x, double y) {
 		this(x, y);
 		this.lpm = lpm;
 	}
 	
 	public GeoPosition(String sX, String sY) {
-		this.x = Float.parseFloat(sX);
-		this.y = Float.parseFloat(sY);
+		this.x = Double.parseDouble(sX);
+		this.y = Double.parseDouble(sY);
 	}
 	
-	public boolean contains(float value) {
+	public boolean contains(double value) {
 		if (this.x == value || this.y == value) { return true; }
 		return false;
 	}
 	
-	public byte getPosByValue(float v) {
+	public byte getPosByValue(double v) {
 		byte pos = 0;
 		if (this.x == v && this.y == v) {
 			pos = Data.ALL_I;
@@ -43,19 +43,19 @@ public class GeoPosition {
 		return pos;
 	}
 	
-	public float getX() {
+	public double getX() {
 		return this.x;
 	}
 	
-	public void setX(float x) {
+	public void setX(double x) {
 		this.x = x;
 	}
 	
-	public float getY() {
+	public double getY() {
 		return this.y;
 	}
 	
-	public void setY(float y) {
+	public void setY(double y) {
 		this.y = y;
 	}
 	
@@ -91,8 +91,11 @@ public class GeoPosition {
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + Float.floatToIntBits(this.x);
-		result = prime * result + Float.floatToIntBits(this.y);
+		long temp;
+		temp = Double.doubleToLongBits(this.x);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
+		temp = Double.doubleToLongBits(this.y);
+		result = prime * result + (int) (temp ^ (temp >>> 32));
 		return result;
 	}
 	
@@ -105,9 +108,9 @@ public class GeoPosition {
 		if (getClass() != obj.getClass())
 			return false;
 		GeoPosition other = (GeoPosition) obj;
-		if (Float.floatToIntBits(this.x) != Float.floatToIntBits(other.x))
+		if (Double.doubleToLongBits(this.x) != Double.doubleToLongBits(other.x))
 			return false;
-		if (Float.floatToIntBits(this.y) != Float.floatToIntBits(other.y))
+		if (Double.doubleToLongBits(this.y) != Double.doubleToLongBits(other.y))
 			return false;
 		return true;
 	}

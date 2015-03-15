@@ -37,8 +37,8 @@ public class Data {
 		byteList.add(bytes);
 	}
 	
-	public void addAllBytes(List<byte[]> byteList2) {
-		for (byte[] bs : byteList2) {
+	public void addAllBytes(List<byte[]> byteList) {
+		for (byte[] bs : byteList) {
 			addBytes(bs);
 		}
 	}
