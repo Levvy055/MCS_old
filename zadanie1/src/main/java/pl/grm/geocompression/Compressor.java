@@ -2,6 +2,7 @@ package pl.grm.geocompression;
 
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.*;
 
 import pl.grm.misc.*;
 
@@ -22,32 +23,12 @@ public class Compressor {
 		dataOut.getDataAsMap().putAll(dataIn.getDataAsMap());
 	}
 	
-	public void compress(Data dataIn) {
-		this.dataIn = dataIn;
-		dataOut.getDataAsMap().putAll(dataIn.getDataAsMap());
-		compress();
-	}
-	
 	public void compress() {
 		if (dataIn == null) { return; }
 		MLog.info("Converting");
 		convertToVP();
 		MLog.info("Compression 1/3 stage");
-		Iterator<Double> it = valPositions.keySet().iterator();
-		while (it.hasNext()) {
-			double v = it.next();
-			ValuePositions vP = valPositions.get(v);
-			int w = (int) Math.round(v);
-			String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
-			String str = valToStore + vP.toSimplifiedString();
-			dataOut.addString(str);
-			try {
-				dataOut.addBytes(str.getBytes("UTF-8"));
-			}
-			catch (UnsupportedEncodingException e) {
-				e.printStackTrace();
-			}
-		}
+		GPSToSimpleString();
 		MLog.info("Compression 2/3 stage");
 		int finalBytesCount = (int) dataOut.getBytesListContentCount();
 		byte[] bytes = new byte[finalBytesCount];
@@ -69,55 +50,7 @@ public class Compressor {
 		MLog.info("Compression completed");
 	}
 	
-	public byte[] compressBytes(byte[] bytesIn) {
-		double bInLen = bytesIn.length;
-		byte[] bytesOut = new byte[(int) Math.ceil(bInLen / 2)];
-		int j = 0;
-		int i = 0;
-		while (i < bInLen - 2) {
-			if (j == 23893906)
-				System.out.println("");
-			bytesOut[j] = connect(shorten(bytesIn[i]), shorten(bytesIn[i + 1]));
-			j++;
-			i += 2;
-		}
-		if (bInLen % 2 == 1)
-			bytesOut[j] = connect(shorten(bytesIn[bytesIn.length - 1]), 0);
-		return bytesOut;
-	}
-	
-	private byte connect(int s1, int s2) {
-		return (byte) (s1 | (s2 << 4));
-	}
-	
-	private int shorten(byte b) {
-		byte result = 0;
-		if (b > 47 && b < 58) {
-			result = (byte) (b - 48);
-		} else {
-			switch (b) {
-				case 'e' :
-					result = 10;
-					break;
-				case 'i' :
-					result = 11;
-					break;
-				case 'p' :
-					result = 12;
-					break;
-				case '-' :
-					result = 13;
-					break;
-				case '.' :
-					result = 14;
-				default :
-					break;
-			}
-		}
-		return result;
-	}
-	
-	public void convertToVP() {
+	private void convertToVP() {
 		this.geoPositions = dataOut.getDataAsMap();
 		int positionsCount = geoPositions.size();
 		try {
@@ -150,6 +83,82 @@ public class Compressor {
 			valPositions.put(x, vP);
 		}
 		vP.put(index, position);
+	}
+	
+	private void GPSToSimpleString() {
+		ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
+		Iterator<Double> it = valPositions.keySet().iterator();
+		while (it.hasNext()) {
+			Double v = it.next();
+			taskExecutor.execute(() -> addSimpleString(v));
+		}
+		taskExecutor.shutdown();
+		try {
+			taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private void addSimpleString(double v) {
+		ValuePositions vP = valPositions.get(v);
+		int w = (int) Math.round(v);
+		String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
+		String str = valToStore + vP.toSimplifiedString();
+		try {
+			this.dataOut.addString(str);
+			this.dataOut.addBytes(str.getBytes("UTF-8"));
+		}
+		catch (UnsupportedEncodingException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	private static byte[] compressBytes(byte[] bytesIn) {
+		double bInLen = bytesIn.length;
+		byte[] bytesOut = new byte[(int) Math.ceil(bInLen / 2)];
+		int j = 0;
+		int i = 0;
+		while (i < bInLen - 2) {
+			bytesOut[j] = connect(shorten(bytesIn[i]), shorten(bytesIn[i + 1]));
+			j++;
+			i += 2;
+		}
+		if (bInLen % 2 == 1)
+			bytesOut[j] = connect(shorten(bytesIn[bytesIn.length - 1]), 0);
+		return bytesOut;
+	}
+	
+	private static byte connect(int s1, int s2) {
+		return (byte) (s1 | (s2 << 4));
+	}
+	
+	private static int shorten(byte b) {
+		byte result = 0;
+		if (b > 47 && b < 58) {
+			result = (byte) (b - 48);
+		} else {
+			switch (b) {
+				case 'e' :
+					result = 10;
+					break;
+				case 'i' :
+					result = 11;
+					break;
+				case 'p' :
+					result = 12;
+					break;
+				case '-' :
+					result = 13;
+					break;
+				case '.' :
+					result = 14;
+				default :
+					break;
+			}
+		}
+		return result;
 	}
 	
 	public Data getComprossedData() {

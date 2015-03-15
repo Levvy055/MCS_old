@@ -1,74 +1,37 @@
 package pl.grm.misc;
 
 import java.io.*;
-import java.util.*;
 import java.util.logging.*;
 
-import pl.grm.geocompression.*;
-
 public class MLog {
-	private static Logger	logger;
-	private static MLog		mLog	= new MLog("z1.log");
+	private Logger		logger;
+	private static MLog	mLog	= new MLog("z1.log");
 	
-	public MLog(String fileName) {
-		Logger loggerR = null;
+	private MLog(String fileName) {
 		try {
-			loggerR = setupLogger(fileName);
+			this.logger = setupLogger(fileName);
 		}
 		catch (IllegalArgumentException e) {
 			e.printStackTrace();
 		}
-		MLog.logger = loggerR;
 	}
 	
-	public static Logger setupLogger(String fileName) throws IllegalArgumentException {
-		logger = Logger.getLogger(fileName);
+	private static Logger setupLogger(String fileName) throws IllegalArgumentException {
+		Logger logger = Logger.getLogger(fileName);
 		try {
 			FileHandler fileHandler = new FileHandler(fileName, 1048476, 1, true);
 			logger.addHandler(fileHandler);
 			SimpleFormatter formatter = new SimpleFormatter();
 			fileHandler.setFormatter(formatter);
 		}
-		catch (SecurityException e) {}
-		catch (IOException e) {}
+		catch (SecurityException e) {
+			e.printStackTrace();
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
 		logger.info("Logger is running ...");
 		return logger;
-	}
-	
-	public static void print(String info, Map<Float, ValuePositions> map, boolean sorted) {
-		List<Float> listIn = new ArrayList<Float>(map.keySet());
-		if (sorted) {
-			Collections.sort(listIn);
-		}
-		ArrayList<String> listOut = new ArrayList<String>();
-		for (Float v : listIn) {
-			ValuePositions vP = map.get(v);
-			listOut.add("Value: " + v + " ");
-			listOut.addAll(vP.toStringFullList());
-			listOut.add("\r\n");
-		}
-		print(info, listOut, false);
-	}
-	
-	public static void print(String info, Set set, boolean sorted) {
-		List list = new ArrayList(set);
-		print(info, list, sorted);
-	}
-	
-	public static void print(String info, List list, boolean sorted) {
-		if (sorted) {
-			Collections.sort(list);
-		}
-		info("======================" + info + "======================\n");
-		String str = "\n";
-		int i = 1;
-		for (Object obj : list) {
-			String strT = obj.toString();
-			str += strT;
-			System.out.println("Logged: (" + strT + ") " + i + " of " + list.size());
-			i++;
-		}
-		info(str);
 	}
 	
 	public static void info(String msg) {
@@ -100,6 +63,6 @@ public class MLog {
 			if (string != null && string != "")
 				stringO += string + "\r\n";
 		}
-		logger.info(stringO);
+		mLog.logger.info(stringO);
 	}
 }

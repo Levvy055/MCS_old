@@ -25,24 +25,6 @@ public class GeoPosition {
 		this.y = Double.parseDouble(sY);
 	}
 	
-	public boolean contains(double value) {
-		if (this.x == value || this.y == value) { return true; }
-		return false;
-	}
-	
-	public byte getPosByValue(double v) {
-		byte pos = 0;
-		if (this.x == v && this.y == v) {
-			pos = Data.ALL_I;
-		}
-		if (this.x == v) {
-			pos = Data.X_I;
-		} else if (this.y == v) {
-			pos = Data.Y_I;
-		}
-		return pos;
-	}
-	
 	public double getX() {
 		return this.x;
 	}

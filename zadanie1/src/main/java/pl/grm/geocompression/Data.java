@@ -13,7 +13,6 @@ public class Data {
 	private List<String>				stringList;
 	private List<byte[]>				byteList;
 	private byte[]						cBytes;
-	public InputStream					in;
 	private long						finalBytesCountInList	= 0;
 	public static final byte			X_I						= 1;
 	public static final byte			Y_I						= 2;
@@ -29,11 +28,11 @@ public class Data {
 		geoPositions.put(getLastID() + 1, geoPosition);
 	}
 	
-	public void addString(String str) {
+	public synchronized void addString(String str) {
 		stringList.add(str);
 	}
 	
-	public void addBytes(byte[] bytes) {
+	public synchronized void addBytes(byte[] bytes) {
 		finalBytesCountInList += bytes.length;
 		byteList.add(bytes);
 	}
@@ -65,10 +64,6 @@ public class Data {
 			vMax = vMax < v ? v : vMax;
 		}
 		return vMax;
-	}
-	
-	public void removeLastString() {
-		stringList.remove(stringList.size() - 1);
 	}
 	
 	public void loadTestDataToCompress(int testID) throws IOException {
@@ -106,7 +101,6 @@ public class Data {
 		Path path = Paths.get(filename);
 		byte[] data = Files.readAllBytes(path);
 		addBytes(data);
-		in = new FileInputStream(filename);
 	}
 	
 	public TreeMap<Long, GeoPosition> getDataAsMap() {

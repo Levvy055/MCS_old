@@ -6,8 +6,6 @@ import pl.grm.geocompression.*;
 import pl.grm.misc.*;
 
 public class Main {
-	private static Data	dataIn	= new Data();
-	private static Data	dataOut	= null;
 	
 	public static void main(String[] args) {
 		try {
@@ -36,6 +34,7 @@ public class Main {
 	
 	public static void compression(String[] args) throws IOException, ArgumentException {
 		Compressor compressor;
+		Data dataIn = new Data();
 		Data dataOut;
 		if (args.length == 2) {
 			String filename = args[1];
@@ -60,6 +59,7 @@ public class Main {
 	
 	private static void decompression(String[] args) throws IOException, ArgumentException {
 		Decompressor Decompressor;
+		Data dataIn = new Data();
 		Data dataOut = null;
 		if (args.length == 2) {
 			String filename = args[1];

@@ -1,6 +1,7 @@
 package pl.grm.geocompression;
 
 import java.util.*;
+import java.util.concurrent.*;
 
 import pl.grm.misc.*;
 
@@ -23,26 +24,10 @@ public class Decompressor {
 		dataOut.addAllBytes(dataIn.getByteList());
 	}
 	
-	public void decompress(Data dataIn) throws InputDataCorruptedException {
-		this.dataIn = dataIn;
-		dataOut.addAllBytes(dataIn.getByteList());
-		decompress();
-	}
-	
 	public void decompress() throws InputDataCorruptedException {
 		if (dataIn == null) { return; }
 		MLog.info("Decompressing 1/3");
-		int bytesCount = (int) dataIn.getBytesListContentCount();
-		List<byte[]> byteList = dataIn.getByteList();
-		MLog.info("Loaded " + bytesCount + " bytes in " + byteList.size() + " elements of list.");
-		byte[] data = new byte[bytesCount];
-		int i = 0;
-		for (byte[] bs : byteList) {
-			for (byte b : bs) {
-				data[i] = b;
-				i++;
-			}
-		}
+		byte[] data = gatherToOneByteArray();
 		byte[] dataUC = divideBytes(data);
 		String outputS = new String(dataUC);
 		MLog.info("Decompressing 2/3");
@@ -54,19 +39,47 @@ public class Decompressor {
 						+ " \nWykryto " + geoPositions.size()); }
 		dataOut.addAllGeoPositions(geoPositions);
 		MLog.info("Decompression completed");
+		MLog.info("Converting");
 		dataOut.addString(geoPositionsAmount + "e");
 		Iterator<Double> it = valPositions.keySet().iterator();
+		ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
 		while (it.hasNext()) {
 			double v = it.next();
-			ValuePositions vP = valPositions.get(v);
-			int w = (int) Math.round(v);
-			String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
-			String str = valToStore + vP.toSimplifiedString();
-			dataOut.addString(str);
+			taskExecutor.execute(() -> addStringToData(v));
+		}
+		taskExecutor.shutdown();
+		try {
+			taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+		}
+		catch (InterruptedException e) {
+			e.printStackTrace();
 		}
 	}
 	
-	public byte[] divideBytes(byte[] data) {
+	private byte[] gatherToOneByteArray() {
+		int bytesCount = (int) dataIn.getBytesListContentCount();
+		List<byte[]> byteList = dataIn.getByteList();
+		MLog.info("Loaded " + bytesCount + " bytes in " + byteList.size() + " elements of list.");
+		byte[] data = new byte[bytesCount];
+		int i = 0;
+		for (byte[] bs : byteList) {
+			for (byte b : bs) {
+				data[i] = b;
+				i++;
+			}
+		}
+		return data;
+	}
+	
+	private void addStringToData(double v) {
+		ValuePositions vP = valPositions.get(v);
+		int w = (int) Math.round(v);
+		String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
+		String str = valToStore + vP.toSimplifiedString();
+		dataOut.addString(str);
+	}
+	
+	private static byte[] divideBytes(byte[] data) {
 		byte[] result = new byte[data.length * 2];
 		int n = 0;
 		for (int i = 0; i < result.length; i += 2, n++) {
@@ -76,7 +89,7 @@ public class Decompressor {
 		return result;
 	}
 	
-	private byte widen(byte b, int i) {
+	private static byte widen(byte b, int i) {
 		int r;
 		if (i == 1) {
 			r = b & 0xF;
@@ -109,7 +122,7 @@ public class Decompressor {
 		return (byte) r;
 	}
 	
-	public Map<Double, ValuePositions> parseToValuePositions(String outputS)
+	private Map<Double, ValuePositions> parseToValuePositions(String outputS)
 			throws InputDataCorruptedException {
 		Map<Double, ValuePositions> parsedPos = new TreeMap<Double, ValuePositions>();
 		int headerEndIndex = outputS.indexOf('e');
@@ -156,7 +169,7 @@ public class Decompressor {
 		return parsedPos;
 	}
 	
-	public Map<Long, GeoPosition> parseToGeoPositions(HashMap<Double, ValuePositions> vPos) {
+	private Map<Long, GeoPosition> parseToGeoPositions(HashMap<Double, ValuePositions> vPos) {
 		Map<Long, GeoPosition> geoPos = new HashMap<Long, GeoPosition>();
 		Iterator<Double> iterator = vPos.keySet().iterator();
 		while (iterator.hasNext()) {
