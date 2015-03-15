@@ -11,6 +11,7 @@ public class Compressor {
 	private Data							dataOut;
 	private TreeMap<Long, GeoPosition>		geoPositions;
 	private TreeMap<Double, ValuePositions>	valPositions;
+	private int								taskCount;
 	
 	public Compressor() {
 		dataOut = new Data();
@@ -88,11 +89,18 @@ public class Compressor {
 	private void GPSToSimpleString() {
 		ExecutorService taskExecutor = Executors.newFixedThreadPool(5);
 		Iterator<Double> it = valPositions.keySet().iterator();
+		taskCount = 0;
 		while (it.hasNext()) {
 			Double v = it.next();
-			taskExecutor.execute(() -> addSimpleString(v));
+			taskCount++;
+			int cT = taskCount;
+			taskExecutor.execute(() -> {
+				Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
+				addSimpleString(v, cT);
+			});
 		}
 		taskExecutor.shutdown();
+		MLog.info("Waiting for  completion of " + taskCount + " tasks...");
 		try {
 			taskExecutor.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
 		}
@@ -101,7 +109,7 @@ public class Compressor {
 		}
 	}
 	
-	private void addSimpleString(double v) {
+	private void addSimpleString(double v, int tC) {
 		ValuePositions vP = valPositions.get(v);
 		int w = (int) Math.round(v);
 		String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
@@ -113,6 +121,7 @@ public class Compressor {
 		catch (UnsupportedEncodingException e) {
 			e.printStackTrace();
 		}
+		MLog.info("End of task " + tC + "/" + taskCount);
 	}
 	
 	private static byte[] compressBytes(byte[] bytesIn) {

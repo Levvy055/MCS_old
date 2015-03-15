@@ -24,7 +24,7 @@ public class Decompressor {
 		dataOut.addAllBytes(dataIn.getByteList());
 	}
 	
-	public void decompress() throws InputDataCorruptedException {
+	public void decompress() throws Exception {
 		if (dataIn == null) { return; }
 		MLog.info("Decompressing 1/3");
 		byte[] data = gatherToOneByteArray();
@@ -34,9 +34,10 @@ public class Decompressor {
 		this.valPositions.putAll(parseToValuePositions(outputS));
 		MLog.info("Decompressing 3/3");
 		this.geoPositions.putAll(parseToGeoPositions(valPositions));
-		if (geoPositions.size() != geoPositionsAmount) { throw new InputDataCorruptedException(
-				"Brakuje wszystkich pozycji.\nIndeks wskazuje na: " + geoPositionsAmount
-						+ " pozycji\nWykryto " + geoPositions.size() + " pozycji w pliku"); }
+		if (geoPositions.size() != geoPositionsAmount) {
+			MLog.info("Brakuje wszystkich pozycji.\nIndeks wskazuje na: " + geoPositionsAmount
+					+ " pozycji\nWykryto " + geoPositions.size() + " pozycji w pliku");
+		}
 		dataOut.addAllGeoPositions(geoPositions);
 		MLog.info("Decompression completed");
 		MLog.info("Converting");
