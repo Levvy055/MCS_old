@@ -32,7 +32,7 @@ public class Main {
 		}
 	}
 	
-	public static void compression(String[] args) throws IOException, ArgumentException {
+	private static void compression(String[] args) throws IOException, ArgumentException {
 		Compressor compressor;
 		Data dataIn = new Data();
 		Data dataOut;

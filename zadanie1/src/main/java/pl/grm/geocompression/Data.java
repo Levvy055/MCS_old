@@ -12,7 +12,7 @@ public class Data {
 	private TreeMap<Long, GeoPosition>	geoPositions;
 	private List<String>				stringList;
 	private List<byte[]>				byteList;
-	private byte[]						cBytes;
+	private byte[]						compressedBytes;
 	private long						finalBytesCountInList	= 0;
 	public static final byte			X_I						= 1;
 	public static final byte			Y_I						= 2;
@@ -22,10 +22,6 @@ public class Data {
 		this.stringList = new ArrayList<String>();
 		this.geoPositions = new TreeMap<Long, GeoPosition>();
 		this.byteList = new ArrayList<>();
-	}
-	
-	public void addGeoPositionAfterLast(GeoPosition geoPosition) {
-		geoPositions.put(getLastID() + 1, geoPosition);
 	}
 	
 	public synchronized void addString(String str) {
@@ -44,7 +40,7 @@ public class Data {
 	}
 	
 	public void addCompressedBytes(byte[] bytes) {
-		cBytes = bytes;
+		compressedBytes = bytes;
 	}
 	
 	public void clearStringList() {
@@ -54,16 +50,6 @@ public class Data {
 	public void clearByteList() {
 		byteList = new ArrayList<byte[]>();
 		finalBytesCountInList = 0;
-	}
-	
-	public long getLastID() {
-		long vMax = 0;
-		Iterator<Long> iterator = geoPositions.keySet().iterator();
-		while (iterator.hasNext()) {
-			Long v = iterator.next();
-			vMax = vMax < v ? v : vMax;
-		}
-		return vMax;
 	}
 	
 	public void loadTestDataToCompress(int testID) throws IOException {
@@ -84,9 +70,24 @@ public class Data {
 		Stream<String> lines = Files.lines(file.toPath());
 		MLog.info("Converting input data");
 		Stream<String[]> splittedLines = lines.map(line -> line.split(","));
-		Stream<GeoPosition> mappedLines = splittedLines.map(snippets -> new GeoPosition(
-				snippets[0], snippets[1]));
-		List<GeoPosition> list = mappedLines.collect(Collectors.toList());
+		Stream<GeoPosition> mappedLines;
+		try {
+			mappedLines = splittedLines.map(snippets -> new GeoPosition(snippets[0], snippets[1]));
+		}
+		catch (IllegalArgumentException e) {
+			lines.close();
+			throw new IOException("Incorrect input data!\n" + e.getMessage());
+		}
+		List<GeoPosition> list;
+		try {
+			list = mappedLines.collect(Collectors.toList());
+		}
+		catch (ArrayIndexOutOfBoundsException e) {
+			lines.close();
+			throw new IOException(
+					"Incorrect input data!\nIs there empty line in file?\nDetails/Index: "
+							+ e.getMessage());
+		}
 		MLog.info("Starting injection of input data with " + list.size() + " positions");
 		long lpm = 1;
 		for (GeoPosition geoPosition : list) {
@@ -144,6 +145,6 @@ public class Data {
 	}
 	
 	public byte[] getCByteList() {
-		return cBytes;
+		return compressedBytes;
 	}
 }

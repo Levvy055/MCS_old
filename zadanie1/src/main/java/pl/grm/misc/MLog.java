@@ -35,34 +35,39 @@ public class MLog {
 	}
 	
 	public static void info(String msg) {
-		int msgL = msg.length();
-		int iM = msgL / 100;
-		iM = iM == 0 ? 1 : iM;
-		float rL = (float) msgL / 100;
-		float riM = rL - iM;
-		iM = riM > 0 ? iM + 1 : iM;
-		String[] msgs = new String[iM];
-		int i = 0;
-		do {
-			int iC = i * 100;
-			int iN = iC + 100;
-			if (iN >= msgL) {
-				iN = msgL;
-			}
-			iN = iN > msgL ? msgL - 1 : iN;
-			msgs[i] = msg.substring(iC, iN);
-			if (msgL > iN && msg.substring(iN, msgL - 1).length() < 20) {
-				msgs[i] += msg.substring(iN, msgL - 1);
+		try {
+			int msgL = msg.length();
+			int iM = msgL / 100;
+			iM = iM == 0 ? 1 : iM;
+			float rL = (float) msgL / 100;
+			float riM = rL - iM;
+			iM = riM > 0 ? iM + 1 : iM;
+			String[] msgs = new String[iM];
+			int i = 0;
+			do {
+				int iC = i * 100;
+				int iN = iC + 100;
+				if (iN >= msgL) {
+					iN = msgL;
+				}
+				iN = iN > msgL ? msgL - 1 : iN;
+				msgs[i] = msg.substring(iC, iN);
+				if (msgL > iN && msg.substring(iN, msgL - 1).length() < 20) {
+					msgs[i] += msg.substring(iN, msgL - 1);
+					i++;
+				}
 				i++;
 			}
-			i++;
+			while (i < iM);
+			String stringO = "";
+			for (String string : msgs) {
+				if (string != null && string != "")
+					stringO += string + "\r\n";
+			}
+			mLog.logger.info(stringO);
 		}
-		while (i < iM);
-		String stringO = "";
-		for (String string : msgs) {
-			if (string != null && string != "")
-				stringO += string + "\r\n";
+		catch (Exception e) {
+			e.printStackTrace();
 		}
-		mLog.logger.info(stringO);
 	}
 }

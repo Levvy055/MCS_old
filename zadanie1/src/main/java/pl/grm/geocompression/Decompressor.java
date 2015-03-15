@@ -36,7 +36,7 @@ public class Decompressor {
 		this.geoPositions.putAll(parseToGeoPositions(valPositions));
 		if (geoPositions.size() != geoPositionsAmount) { throw new InputDataCorruptedException(
 				"Brakuje wszystkich pozycji.\nIndeks wskazuje na: " + geoPositionsAmount
-						+ " \nWykryto " + geoPositions.size()); }
+						+ " pozycji\nWykryto " + geoPositions.size() + " pozycji w pliku"); }
 		dataOut.addAllGeoPositions(geoPositions);
 		MLog.info("Decompression completed");
 		MLog.info("Converting");
@@ -169,7 +169,7 @@ public class Decompressor {
 		return parsedPos;
 	}
 	
-	private Map<Long, GeoPosition> parseToGeoPositions(HashMap<Double, ValuePositions> vPos) {
+	private static Map<Long, GeoPosition> parseToGeoPositions(HashMap<Double, ValuePositions> vPos) {
 		Map<Long, GeoPosition> geoPos = new HashMap<Long, GeoPosition>();
 		Iterator<Double> iterator = vPos.keySet().iterator();
 		while (iterator.hasNext()) {

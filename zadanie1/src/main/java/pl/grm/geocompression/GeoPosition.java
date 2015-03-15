@@ -20,9 +20,15 @@ public class GeoPosition {
 		this.lpm = lpm;
 	}
 	
-	public GeoPosition(String sX, String sY) {
-		this.x = Double.parseDouble(sX);
-		this.y = Double.parseDouble(sY);
+	public GeoPosition(String sX, String sY) throws IllegalArgumentException {
+		try {
+			this.x = Double.parseDouble(sX);
+			this.y = Double.parseDouble(sY);
+		}
+		catch (NumberFormatException nfe) {
+			throw new IllegalArgumentException("Data input: " + sX + " or " + sY + " is invalid.",
+					nfe);
+		}
 	}
 	
 	public double getX() {
