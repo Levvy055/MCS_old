@@ -12,6 +12,7 @@ public class Data {
 	private TreeMap<Long, GeoPosition>	geoPositions;
 	private List<String>				stringList;
 	private List<byte[]>				byteList;
+	private byte[]						cBytes;
 	public InputStream					in;
 	private long						finalBytesCountInList	= 0;
 	public static final byte			X_I						= 1;
@@ -41,6 +42,10 @@ public class Data {
 		for (byte[] bs : byteList) {
 			addBytes(bs);
 		}
+	}
+	
+	public void addCompressedBytes(byte[] bytes) {
+		cBytes = bytes;
 	}
 	
 	public void clearStringList() {
@@ -142,5 +147,9 @@ public class Data {
 	
 	public void addAllGeoPositions(HashMap<Long, GeoPosition> gPMap) {
 		this.geoPositions.putAll(gPMap);
+	}
+	
+	public byte[] getCByteList() {
+		return cBytes;
 	}
 }

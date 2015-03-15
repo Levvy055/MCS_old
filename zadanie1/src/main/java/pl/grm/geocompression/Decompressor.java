@@ -43,7 +43,8 @@ public class Decompressor {
 				i++;
 			}
 		}
-		String outputS = new String(data);
+		byte[] dataUC = divideBytes(data);
+		String outputS = new String(dataUC);
 		MLog.info("Decompressing 2/3");
 		this.valPositions.putAll(parseToValuePositions(outputS));
 		MLog.info("Decompressing 3/3");
@@ -53,6 +54,59 @@ public class Decompressor {
 						+ " \nWykryto " + geoPositions.size()); }
 		dataOut.addAllGeoPositions(geoPositions);
 		MLog.info("Decompression completed");
+		dataOut.addString(geoPositionsAmount + "e");
+		Iterator<Double> it = valPositions.keySet().iterator();
+		while (it.hasNext()) {
+			double v = it.next();
+			ValuePositions vP = valPositions.get(v);
+			int w = (int) Math.round(v);
+			String valToStore = (w == v) ? String.valueOf(w) : String.valueOf(v);
+			String str = valToStore + vP.toSimplifiedString();
+			dataOut.addString(str);
+		}
+	}
+	
+	public byte[] divideBytes(byte[] data) {
+		byte[] result = new byte[data.length * 2];
+		int n = 0;
+		for (int i = 0; i < result.length; i += 2, n++) {
+			result[i] = widen(data[n], 1);
+			result[i + 1] = widen(data[n], 2);
+		}
+		return result;
+	}
+	
+	private byte widen(byte b, int i) {
+		int r;
+		if (i == 1) {
+			r = b & 0xF;
+		} else {
+			r = (b & 0xF0) >>> 4;
+		}
+		if (r > -1 && r < 10) {
+			r += 48;
+		} else {
+			switch (r) {
+				case 10 :
+					r = 'e';
+					break;
+				case 11 :
+					r = 'i';
+					break;
+				case 12 :
+					r = 'p';
+					break;
+				case 13 :
+					r = '-';
+					break;
+				case 14 :
+					r = '.';
+					break;
+				default :
+					break;
+			}
+		}
+		return (byte) r;
 	}
 	
 	public Map<Double, ValuePositions> parseToValuePositions(String outputS)

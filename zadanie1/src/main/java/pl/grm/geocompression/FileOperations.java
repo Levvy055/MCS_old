@@ -26,9 +26,11 @@ public class FileOperations {
 	 * @param data
 	 * @param fileName
 	 * @param type
-	 *            0 - gps positions, 1 - one time compression, 2 -better
+	 *            0 - gps positions(no compression), 1 - one stage only
+	 *            compression, 2 -better
 	 *            compression
 	 * @param for0TypeExpLvl
+	 *            0 - simplest -> 3 - full
 	 * @throws IOException
 	 */
 	public static void saveOutputFile(Data data, String fileName, int type, int for0TypeExpLvl)
@@ -46,11 +48,13 @@ public class FileOperations {
 			file.renameTo(tFile);
 			file = new File(fileName + ".txt");
 		}
-		FileWriter fW = new FileWriter(file);
 		if (data != null) {
+			OutputStreamWriter fW;
+			FileOutputStream fos;
 			switch (type) {
 				case 0 :
 					List<GeoPosition> listG = data.getDataAsList();
+					fW = new FileWriter(file);
 					for (int i = 0; i < listG.size(); i++) {
 						GeoPosition gp = listG.get(i);
 						switch (for0TypeExpLvl) {
@@ -70,27 +74,39 @@ public class FileOperations {
 							default :
 								break;
 						}
-						
 					}
+					fW.flush();
+					fW.close();
 					break;
 				case 1 :
+					fW = new FileWriter(file);
 					List<String> listL = data.getStringList();
 					for (String line : listL) {
 						fW.write(line);
 					}
+					fW.flush();
+					fW.close();
 					break;
 				case 2 :
+					fos = new FileOutputStream(file);
 					List<byte[]> listB = data.getByteList();
 					for (byte[] line : listB) {
-						fW.write(new String(line));
+						fos.write(line);
 					}
+					fos.flush();
+					fos.close();
+					break;
+				case 3 :
+					fos = new FileOutputStream(file);
+					byte[] bytes = data.getCByteList();
+					fos.write(bytes);
+					fos.flush();
+					fos.close();
 					break;
 				default :
 					break;
 			}
 		}
-		fW.flush();
-		fW.close();
 		MLog.info("Output file Saved");
 	}
 }

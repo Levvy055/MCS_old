@@ -61,16 +61,60 @@ public class Compressor {
 		}
 		MLog.info("Current size: " + finalBytesCount);
 		MLog.info("Compression 3/3 stage");
-		byte[] output = compressBytes(bytes);
 		dataOut.clearByteList();
-		dataOut.addBytes(output);
+		dataOut.addBytes(bytes);
+		byte[] output = compressBytes(bytes);
+		dataOut.addCompressedBytes(output);
 		MLog.info("Current bytes amount: " + output.length);
 		MLog.info("Compression completed");
 	}
 	
-	public byte[] compressBytes(byte[] bytes) {
-		// TODO Auto-generated method stub
-		return bytes;
+	public byte[] compressBytes(byte[] bytesIn) {
+		double bInLen = bytesIn.length;
+		byte[] bytesOut = new byte[(int) Math.ceil(bInLen / 2)];
+		int j = 0;
+		int i = 0;
+		while (i < bInLen - 2) {
+			if (j == 23893906)
+				System.out.println("");
+			bytesOut[j] = connect(shorten(bytesIn[i]), shorten(bytesIn[i + 1]));
+			j++;
+			i += 2;
+		}
+		if (bInLen % 2 == 1)
+			bytesOut[j] = connect(shorten(bytesIn[bytesIn.length - 1]), 0);
+		return bytesOut;
+	}
+	
+	private byte connect(int s1, int s2) {
+		return (byte) (s1 | (s2 << 4));
+	}
+	
+	private int shorten(byte b) {
+		byte result = 0;
+		if (b > 47 && b < 58) {
+			result = (byte) (b - 48);
+		} else {
+			switch (b) {
+				case 'e' :
+					result = 10;
+					break;
+				case 'i' :
+					result = 11;
+					break;
+				case 'p' :
+					result = 12;
+					break;
+				case '-' :
+					result = 13;
+					break;
+				case '.' :
+					result = 14;
+				default :
+					break;
+			}
+		}
+		return result;
 	}
 	
 	public void convertToVP() {
