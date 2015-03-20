@@ -25,6 +25,9 @@ namespace MasterCoder.PKW.Mandates
             catch (InputParametersException)
             {
                 Console.WriteLine("Input parameters are incorrect. No party gets mandate.");
+                //Console.WriteLine("Press Enter to close."); 
+                //Console.ReadLine();                          //Prewencyjnie, w celu nie natychmiastowemu zamknięciu się konsoli,
+                                                               //aby uzytkownik mial czas na przeczytanie i zrozumienie komunikatu.
             }
         }
 

@@ -92,7 +92,6 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="mt\204.34.24.51.txt" />
     <Content Include="Input\188.20.10.5.txt" />
     <Content Include="Input\11.0.0.11.txt" />
   </ItemGroup>

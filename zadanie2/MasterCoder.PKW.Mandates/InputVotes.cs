@@ -47,7 +47,7 @@ namespace MasterCoder.PKW.Mandates
                 {
                     if(v[j].PartShortName==vote.PartShortName)
                     {
-                        v[j].ValidVotes = vote.ValidVotes; // dodajemy glosy do siebie, z poprzedniego okregu glosy inaczej gina
+                        v[j].ValidVotes += vote.ValidVotes; // dodajemy glosy do siebie, z poprzedniego okregu glosy inaczej zostana nadpisane
                         updated = true;
                         break;
                     }
