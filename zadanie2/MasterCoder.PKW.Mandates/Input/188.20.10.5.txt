@@ -1,0 +1,5 @@
+OP;OP;128
+SiP;SiP;12
+LSP;LSP;80
+QWA;QWA;53
+Thc;Thc;35
