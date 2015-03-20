@@ -16,12 +16,12 @@ namespace MasterCoder.PKW.Mandates
 
             int maxInd = 0;
 
-            for (int i = mandatesCount; i >= 0; i--)
+            for (int i = mandatesCount; i > 0; i--) // malo czytelne ze odwrocona kolejnosc i  >= ->> >, bo by byl o 1 wiecej mandat
             {
                 float m = -1;
-                for (int j = 0; j < calcTab.Count; j++)
+                for (int j = 0; j < calcTab.Count; j++) //znajduje max
                 {
-                    if (m < calcTab[j])
+                    if (m < calcTab[j]) 
                     {
                         m = calcTab[j];
                         maxInd = j;
@@ -50,7 +50,11 @@ namespace MasterCoder.PKW.Mandates
 
         private float Calc(int v, int mandates)
         {
-            return (float)((v * 1.0) / (mandates + 1.0));
+            if (mandates == 0) // dla ilosci 0 mandatow zwracana jest wartosc (v/1.4)
+            {
+                return (float)((float)v / 1.4);
+            }
+            return (float)((float)v / (2*mandates + 1.0)); // brakujace 2* poniewaz metoda powinna zwracac wartosc v/(2*mandates+1) dla mandatow > 0
         }
     }
 }

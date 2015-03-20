@@ -8,6 +8,7 @@ namespace MasterCoder.PKW.Mandates
 {
     enum MethodEnum
     {
-        DHondta, SaintLague, HareNiemeyer, Unkonow
+        DHondta=1, SaintLague, HareNiemeyer, Unknown //Unkonow -> Unknown | misspell oraz
+                                                    // skoro DHondta ma byc pod parametrem 1, to musimy od tego indexu rozpoczac enum
     }
 }

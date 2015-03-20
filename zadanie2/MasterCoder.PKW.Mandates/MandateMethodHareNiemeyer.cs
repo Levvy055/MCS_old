@@ -19,7 +19,7 @@ namespace MasterCoder.PKW.Mandates
             int mandCounter=0;
             for(int i=0; i<v.Count;i++)
             {
-                tab.Add(v[i].ValidVotes * mandatesCount / totalVotes);
+                tab.Add(((double)(v[i].ValidVotes * mandatesCount)) / totalVotes); // przez dzielenie int tracimy czesc dziesietna
                 partMandates[i].Mandates = (int)Math.Floor(tab[i]);
                 tab[i] -= partMandates[i].Mandates;
                 mandCounter += partMandates[i].Mandates;

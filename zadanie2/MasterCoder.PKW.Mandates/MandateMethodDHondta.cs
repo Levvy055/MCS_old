@@ -51,7 +51,7 @@ namespace MasterCoder.PKW.Mandates
 
         private double Calc(int v, int mandates)
         {
-            return ((double)v * 1.0 / (2*mandates + 1.0));
+            return ((double)v * 1.0 / (mandates + 1.0)); //w wzorze  [v / (mandates + 1)] nie ma 2*
         }
     }
 }

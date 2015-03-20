@@ -16,7 +16,6 @@ namespace MasterCoder.PKW.Mandates
             {
                 ValidateInputParameters(args);
                 InputVotes votes = new InputVotes(args[2]);
-
                 IMandateMethod m = MandateMethodFactory.Get((MethodEnum)Int32.Parse(args[0]));
                 var mandates = m.CalculateMandates(votes.GetAllValidVotes(), Int32.Parse(args[1]));
                 ShowOnConsole(mandates);
@@ -39,7 +38,7 @@ namespace MasterCoder.PKW.Mandates
             uint test;
             if (!UInt32.TryParse(args[0], out test) || !UInt32.TryParse(args[1], out test))
             {
-                throw new InputParametersException("Parameter should be digt.");
+                throw new InputParametersException("Parameter should be digit.");//digt -> digit |misspell
             }
 
             if(string.IsNullOrWhiteSpace(args[2]) || !Directory.Exists(args[2]))
