@@ -22,7 +22,7 @@ namespace MasterCoder.PKW.Mandates
         private void Initialize()
         {
             string[] f = Directory.GetFiles(FilePath);
-            //Dla lepszej optymalizacji najlepiej odczyt kazdego pliku wykonac w oddzielnym watku
+            //Dla lepszej optymalizacji najlepiej odczyt kazdego pliku wykonac w oddzielnym watku dla duzej ilosci danych
             for (int i = 0; i < f.Length; i++)
             {
                 if (FileNameValidation.Validate(Path.GetFileName(f[i])))
