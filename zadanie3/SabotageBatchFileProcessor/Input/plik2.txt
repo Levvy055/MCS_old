@@ -1,0 +1,13 @@
+int a = 6;
+int b = 4;
+int c = 7;
+int d = 2;
+int e = 5;
+int f = 3;
+string napis = "Wynik obliczeñ: ";
+
+int s;
+
+s = a + b * c + d + e - f;
+napis = napis + cast(string, s);
+print(napis);

@@ -1,15 +1,27 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace SabotageBatchFileProcessor
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
+            if (args.Length != 1)
+            {
+                throw new IOException("Bad arguments amount!");
+            }
+            if (!File.Exists(args[0]))
+            {
+                throw new IOException("File " + args[0] + " not found.");
+            }
+            SBFP sBFP = new SBFP(args[0]);
+            sBFP.process();
+            Console.ReadLine();
         }
     }
 }
