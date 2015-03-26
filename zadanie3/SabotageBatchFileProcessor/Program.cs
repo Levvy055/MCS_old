@@ -20,7 +20,14 @@ namespace SabotageBatchFileProcessor
                 throw new IOException("File " + args[0] + " not found.");
             }
             SBFP sBFP = new SBFP(args[0]);
-            sBFP.process();
+            try
+            {
+                sBFP.process();
+            }
+            catch (InvalidCastException e)
+            {
+                Console.WriteLine("Invalid Cast Exception\n"+e.Message);
+            }
             Console.ReadLine();
         }
     }
