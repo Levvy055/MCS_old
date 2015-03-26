@@ -44,7 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BatchMethodProcessor.cs" />
+    <Compile Include="BatchFunctionProcessor.cs" />
     <Compile Include="FileOp.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

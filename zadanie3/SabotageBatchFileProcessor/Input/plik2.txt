@@ -6,7 +6,7 @@ int e = 5;
 int f = 3;
 string napis = "Wynikk obliczeñ: ";
 napis = "Wynik obliczeñ: ";
-
+kk;
 int s;
 
 s = a + b * c + d + e - f;

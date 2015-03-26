@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace SabotageBatchFileProcessor
 {
-    class FileOp
+    public static class FileOp
     {
-        public static List<string> loadCodeLinesFromFile(string fileName)
+        public static List<String> loadCodeLinesFromFile(string fileName)
         {
-            List<string> lines = new List<string>();
+            List<String> lines = new List<String>();
             string[] linesT = System.IO.File.ReadAllLines(fileName);
             string befLine = "";
             foreach (string line in linesT)
@@ -19,12 +19,17 @@ namespace SabotageBatchFileProcessor
                 {
                     if (befLine == "")
                     {
-                        lines.Add(line);
+                        if (ContainsAny(line, BatchInterpreter.KEYSIGNS, BatchInterpreter.KEYWORDS))
+                        {
+                            lines.Add(line);
+                        }
                     }
                     else
-                    {
-                        lines.Add(befLine + line); befLine = "";
-                    }
+                        if (ContainsAny(befLine + line, BatchInterpreter.KEYSIGNS, BatchInterpreter.KEYWORDS))
+                        {
+                            lines.Add(befLine + line);
+                        }
+                    befLine = "";
                 }
                 else if (line.Length > 1)
                 {
@@ -32,6 +37,21 @@ namespace SabotageBatchFileProcessor
                 }
             }
             return lines;
+        }
+
+        public static bool ContainsAny(this string word, params string[][] arrays)
+        {
+            foreach (string[] array in arrays)
+            {
+                foreach (string nWord in array)
+                {
+                    if (word.Contains(nWord))
+                    {
+                        return true;
+                    }
+                }
+            }
+            return false;
         }
     }
 }

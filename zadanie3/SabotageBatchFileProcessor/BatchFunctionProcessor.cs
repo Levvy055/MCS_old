@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SabotageBatchFileProcessor
 {
-    class BatchMethodProcessor
+    public class BatchFunctionProcessor
     {
         public static void print(string s)
         {

@@ -7,32 +7,32 @@ using System.Threading.Tasks;
 
 namespace SabotageBatchFileProcessor
 {
-    class BatchInterpreter
+    public class BatchInterpreter
     {
         private string fileName;
-        private List<string> lines;
-        private Dictionary<string, string> strVariables;
-        private Dictionary<string, int> intVariables;
-        private String[] KEYWORDS = { "int", "string", "print", "cast" };
-        private char[] KEYSIGNS = { '(', ')', '+', '-', '*', '=' };
+        private List<String> lines;
+        private Dictionary<String, String> strVariables;
+        private Dictionary<String, Int32> intVariables;
+        public static String[] KEYWORDS = { "int", "string", "print", "cast" };
+        public static String[] KEYSIGNS = { "(", ")", "+", "-", "*", "=" };
 
         public BatchInterpreter(string fileName)
         {
             this.fileName = fileName;
-            strVariables = new Dictionary<string, string>();
-            intVariables = new Dictionary<string, int>();
+            strVariables = new Dictionary<String, String>();
+            intVariables = new Dictionary<String, Int32>();
         }
 
         public void process()
         {
-            lines=FileOp.loadCodeLinesFromFile(fileName);
+            lines = FileOp.loadCodeLinesFromFile(fileName);
             processAllLines();
             Console.WriteLine("");
-            foreach (KeyValuePair<string, int> entry in intVariables)
+            foreach (KeyValuePair<String, Int32> entry in intVariables)
             {
                 Console.WriteLine("i " + entry);
             }
-            foreach (KeyValuePair<string, string> entry in strVariables)
+            foreach (KeyValuePair<String, String> entry in strVariables)
             {
                 Console.WriteLine("s " + entry);
             }
@@ -129,7 +129,7 @@ namespace SabotageBatchFileProcessor
             }
         }
 
-        private void assignValue(String line)
+        private void assignValue(string line)
         {
             int iR = line.IndexOf('=');
             int iS = line.IndexOf(';');
