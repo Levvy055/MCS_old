@@ -11,16 +11,14 @@ namespace SabotageBatchFileProcessor
     {
         private string fileName;
         private List<String> lines;
-        private Dictionary<String, String> strVariables;
-        private Dictionary<String, Int32> intVariables;
+        private Dictionary<String, Variable> Variables;
         public static String[] KEYWORDS = { "int", "string", "print", "cast" };
         public static String[] KEYSIGNS = { "(", ")", "+", "-", "*", "=" };
 
         public BatchInterpreter(string fileName)
         {
             this.fileName = fileName;
-            strVariables = new Dictionary<String, String>();
-            intVariables = new Dictionary<String, Int32>();
+            Variables = new Dictionary<string, Variable>();
         }
 
         public void process()
@@ -28,13 +26,16 @@ namespace SabotageBatchFileProcessor
             lines = FileOp.loadCodeLinesFromFile(fileName);
             processAllLines();
             Console.WriteLine("");
-            foreach (KeyValuePair<String, Int32> entry in intVariables)
+            foreach (KeyValuePair<String, Variable> entry in Variables)
             {
-                Console.WriteLine("i " + entry);
-            }
-            foreach (KeyValuePair<String, String> entry in strVariables)
-            {
-                Console.WriteLine("s " + entry);
+                if (entry.Value.VariableType == VariableTypes.INT)
+                {
+                    Console.WriteLine("i [" +entry.Key+", "+ entry.Value.IValue+"]");
+                }
+                else
+                {
+                    Console.WriteLine("s [" +entry.Key+", "+ entry.Value.SValue+"]");
+                }
             }
         }
 
@@ -82,13 +83,16 @@ namespace SabotageBatchFileProcessor
             int iL = line.IndexOf(';');
             int iVNL;
             string value;
+            Variable variable;
             if (isInt)
             {
                 iVNL = line.IndexOf('t');
+                variable = new Variable(0);
             }
             else
             {
                 iVNL = line.IndexOf('g');
+                variable = new Variable("");
             }
             if (line[iVNL + 1] == ' ')
             {
@@ -96,14 +100,7 @@ namespace SabotageBatchFileProcessor
                 if (iR == -1)
                 {
                     varName = line.Substring(iVNL + 2, iL - iVNL - 2).Trim();
-                    if (isInt)
-                    {
-                        intVariables.Add(varName, 0);
-                    }
-                    else
-                    {
-                        strVariables.Add(varName, "");
-                    }
+                    Variables.Add(varName, variable);
                 }
                 else
                 {
@@ -114,7 +111,8 @@ namespace SabotageBatchFileProcessor
                         int v;
                         if (int.TryParse(value, out v))
                         {
-                            intVariables.Add(varName, v);
+                            variable.IValue = v;
+                            Variables.Add(varName, variable);
                         }
                         else
                         {
@@ -123,7 +121,8 @@ namespace SabotageBatchFileProcessor
                     }
                     else
                     {
-                        strVariables.Add(varName, value);
+                        variable.SValue = value;
+                        Variables.Add(varName, variable);
                     }
                 }
             }
@@ -136,15 +135,15 @@ namespace SabotageBatchFileProcessor
             string varName = line.Substring(0, iR).Trim();
             string value = line.Substring(iR + 1, iS - iR - 1);
             int iValue;
-            if (value.Contains('"') && strVariables.ContainsKey(varName))
+            if (value.Contains('"'))
             {
                 int iFQ = value.IndexOf('"');
                 int sFQ = value.IndexOf('"', iFQ + 1);
-                strVariables[varName] = value.Substring(iFQ + 1, sFQ - iFQ - 1);
+                Variables[varName].SValue = value.Substring(iFQ + 1, sFQ - iFQ - 1);
             }
-            else if (intVariables.ContainsKey(varName) && int.TryParse(value, out iValue))
+            else if (int.TryParse(value, out iValue))
             {
-                intVariables[varName] = iValue;
+                Variables[varName].IValue = iValue;
             }
         }
     }
