@@ -28,6 +28,10 @@ namespace SabotageBatchFileProcessor
             {
                 Console.WriteLine("Invalid Cast Exception\n"+e.Message);
             }
+            catch (NullReferenceException e)
+            {
+                Console.WriteLine(e.Message);
+            }
             Console.ReadLine();
         }
     }

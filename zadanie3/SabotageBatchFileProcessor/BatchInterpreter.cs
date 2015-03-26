@@ -25,16 +25,16 @@ namespace SabotageBatchFileProcessor
         {
             lines = FileOp.loadCodeLinesFromFile(fileName);
             processAllLines();
-            Console.WriteLine("");
+            Console.WriteLine("_________________________________");
             foreach (KeyValuePair<String, Variable> entry in Variables)
             {
                 if (entry.Value.VariableType == VariableTypes.INT)
                 {
-                    Console.WriteLine("i [" +entry.Key+", "+ entry.Value.IValue+"]");
+                    Console.WriteLine("i [" + entry.Key + ", " + entry.Value.IValue + "]");
                 }
                 else
                 {
-                    Console.WriteLine("s [" +entry.Key+", "+ entry.Value.SValue+"]");
+                    Console.WriteLine("s [" + entry.Key + ", " + entry.Value.SValue + "]");
                 }
             }
         }
@@ -43,13 +43,17 @@ namespace SabotageBatchFileProcessor
         {
             foreach (String line in lines)
             {
-                Console.WriteLine(line);
+                Console.WriteLine("                " + line);
                 Boolean isInt;
                 if (containsKeyWords(line))
                 {
                     if ((isInt = line.StartsWith("int ")) || line.StartsWith("string "))
                     {
                         declareVar(line, isInt);
+                    }
+                    else if (line.Contains("print"))
+                    {
+                        prepareToPrint(line);
                     }
                 }
                 else if (line.Contains('='))
@@ -145,6 +149,26 @@ namespace SabotageBatchFileProcessor
             {
                 Variables[varName].IValue = iValue;
             }
+        }
+
+        private void prepareToPrint(string line)
+        {
+            int iFB = line.IndexOf('(');
+            int iSB = line.IndexOf(')');
+            string vName = line.Substring(iFB + 1, iSB - iFB - 1);
+            if (Variables.ContainsKey(vName))
+            {
+                Variable variable = Variables[vName];
+                if (variable.VariableType == VariableTypes.INT)
+                {
+                    BatchFunctionProcessor.print(variable.IValue);
+                }
+                else
+                {
+                    BatchFunctionProcessor.print(variable.SValue);
+                }
+            }
+            else { throw new NullReferenceException("There is no variable " + vName + " declared!"); }
         }
     }
 }
