@@ -7,26 +7,27 @@ using System.Threading.Tasks;
 
 namespace SabotageBatchFileProcessor
 {
-    class SBFP
+    class BatchInterpreter
     {
         private string fileName;
         private List<string> lines;
         private Dictionary<string, string> strVariables;
         private Dictionary<string, int> intVariables;
         private String[] KEYWORDS = { "int", "string", "print", "cast" };
+        private char[] KEYSIGNS = { '(', ')', '+', '-', '*', '=' };
 
-        public SBFP(string fileName)
+        public BatchInterpreter(string fileName)
         {
             this.fileName = fileName;
-            lines = new List<string>();
             strVariables = new Dictionary<string, string>();
             intVariables = new Dictionary<string, int>();
         }
 
         public void process()
         {
-            loadCodeLinesFromFile();
+            lines=FileOp.loadCodeLinesFromFile(fileName);
             processAllLines();
+            Console.WriteLine("");
             foreach (KeyValuePair<string, int> entry in intVariables)
             {
                 Console.WriteLine("i " + entry);
@@ -34,30 +35,6 @@ namespace SabotageBatchFileProcessor
             foreach (KeyValuePair<string, string> entry in strVariables)
             {
                 Console.WriteLine("s " + entry);
-            }
-        }
-
-        private void loadCodeLinesFromFile()
-        {
-            string[] linesT = System.IO.File.ReadAllLines(fileName);
-            string befLine = "";
-            foreach (string line in linesT)
-            {
-                if (line.Contains(';'))
-                {
-                    if (befLine == "")
-                    {
-                        lines.Add(line);
-                    }
-                    else
-                    {
-                        lines.Add(befLine + line); befLine = "";
-                    }
-                }
-                else if (line.Length > 1)
-                {
-                    befLine += line;
-                }
             }
         }
 

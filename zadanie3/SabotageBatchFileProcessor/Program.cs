@@ -19,7 +19,7 @@ namespace SabotageBatchFileProcessor
             {
                 throw new IOException("File " + args[0] + " not found.");
             }
-            SBFP sBFP = new SBFP(args[0]);
+            BatchInterpreter sBFP = new BatchInterpreter(args[0]);
             try
             {
                 sBFP.process();
