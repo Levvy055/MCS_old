@@ -19,13 +19,13 @@ namespace SabotageBatchFileProcessor
                 {
                     if (befLine == "")
                     {
-                        if (ContainsAny(line, BatchInterpreter.KEYSIGNS, BatchInterpreter.KEYWORDS))
+                        if (ContainsAny(line, ToArray(BatchInterpreter.KEYSIGNS), BatchInterpreter.KEYWORDS))
                         {
                             lines.Add(line);
                         }
                     }
                     else
-                        if (ContainsAny(befLine + line, BatchInterpreter.KEYSIGNS, BatchInterpreter.KEYWORDS))
+                        if (ContainsAny(befLine + line, ToArray(BatchInterpreter.KEYSIGNS), BatchInterpreter.KEYWORDS))
                         {
                             lines.Add(befLine + line);
                         }
@@ -52,6 +52,16 @@ namespace SabotageBatchFileProcessor
                 }
             }
             return false;
+        }
+
+        public static string[] ToArray(char[] array)
+        {
+            string[] cA=new string[array.Length];
+            for (int i=0;i<array.Length;i++)
+            {
+                cA[i] = array[i].ToString();
+            }
+            return cA;
         }
     }
 }

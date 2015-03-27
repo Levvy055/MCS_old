@@ -12,8 +12,8 @@ namespace SabotageBatchFileProcessor
         private string fileName;
         private List<String> lines;
         private Dictionary<String, Variable> Variables;
-        public static String[] KEYWORDS = { "int", "string", "print", "cast" };
-        public static String[] KEYSIGNS = { "(", ")", "+", "-", "*", "=" };
+        public static string[] KEYWORDS = { "int", "string", "print", "cast" };
+        public static char[] KEYSIGNS = { '(', ')', '+', '-', '*', '=' };
 
         public BatchInterpreter(string fileName)
         {
@@ -43,7 +43,9 @@ namespace SabotageBatchFileProcessor
         {
             foreach (String line in lines)
             {
-                Console.WriteLine("                " + line);
+                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                Console.WriteLine(line);
+                Console.ResetColor();
                 Boolean isInt;
                 if (containsKeyWords(line))
                 {
@@ -56,12 +58,55 @@ namespace SabotageBatchFileProcessor
                         prepareToPrint(line);
                     }
                 }
+                else if (containsKeySign(line, false))
+                {
+                    calculate(line);
+                }
                 else if (line.Contains('='))
                 {
-
                     assignValue(line);
                 }
             }
+        }
+
+        private void calculate(string line)
+        {
+            Dictionary<Int32, Char> signIndexes = new Dictionary<Int32, Char>();
+            for (int i = 0; i < line.Length; i++)
+            {
+                char c = line[i];
+                if (isKeySign(c, false) || c == '"')
+                {
+                    signIndexes.Add(i, c);
+                }
+            }
+            foreach (KeyValuePair<Int32, Char> entry in signIndexes)
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(entry);
+                Console.ResetColor();
+            }
+        }
+
+
+        private bool containsKeySign(string line, bool withEqual)
+        {
+            Boolean inQuotes = false;
+            foreach (char ch in line)
+            {
+                if (ch == '"')
+                {
+                    if (!inQuotes)
+                        inQuotes = true;
+                    else
+                        inQuotes = false;
+                }
+                if (KEYSIGNS.Contains(ch) && !inQuotes && (ch != KEYSIGNS[5] || withEqual))
+                {
+                    return true;
+                }
+            }
+            return false;
         }
 
         private bool containsKeyWords(string line)
@@ -71,15 +116,50 @@ namespace SabotageBatchFileProcessor
                 string keyWord = KEYWORDS[i];
                 if (line.Contains(keyWord))
                 {
-                    if (((i == 0 || i == 1) && line.StartsWith(keyWord)) || i > 1)
+                    if (line.StartsWith(keyWord) && keyWord != KEYWORDS[3])
                     {
                         return true;
+                    }
+                    else
+                    {
+                        int iWord = line.IndexOf(keyWord);
+                        List<int> iQuotes = new List<int>();
+                        int indQ = 0;
+                        while (indQ != -1)
+                        {
+                            indQ = line.IndexOf("\"", indQ + 1);
+                            if (indQ != -1)
+                            {
+                                iQuotes.Add(i);
+                            }
+                        }
+                        Boolean inQuotes=false;
+                        for (int iT = 0; iT < iQuotes.Count; iT++)
+                        {
+                             inQuotes = iT % 2 != 0;
+                            if (inQuotes && iWord < iQuotes[iT])
+                            {
+                                return true;
+                            }
+                        }
+                        if (!inQuotes)
+                        {
+                            return true;
+                        }
                     }
                 }
             }
             return false;
         }
 
+        private bool isKeySign(char c, bool withEqual)
+        {
+            if (KEYSIGNS.Contains(c) && (c != KEYSIGNS[5] || withEqual))
+            {
+                return true;
+            }
+            return false;
+        }
 
         private void declareVar(String line, Boolean isInt)
         {
