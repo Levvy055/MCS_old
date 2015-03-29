@@ -12,21 +12,26 @@ namespace SabotageBatchFileProcessor
         private string fileName;
         private List<String> lines;
         private Dictionary<String, Variable> Variables;
+        private StringParser SParser;
         public static string[] KEYWORDS = { "int", "string", "print", "cast" };
         public static char[] KEYSIGNS = { '(', ')', '+', '-', '*', '=' };
 
         public BatchInterpreter(string fileName)
         {
             this.fileName = fileName;
-            Variables = new Dictionary<string, Variable>();
+            this.Variables = new Dictionary<string, Variable>();
+            this.SParser = new StringParser(this);
         }
 
         public void process()
         {
-            lines = FileOp.loadCodeLinesFromFile(fileName);
-            processAllLines();
-            Console.WriteLine("_________________________________");
-            foreach (KeyValuePair<String, Variable> entry in Variables)
+            this.lines = FileOp.loadCodeLinesFromFile(this.fileName);
+            foreach (String line in lines)
+            {
+                processCommand(line);
+            }
+            Console.WriteLine("_________________________________"); //TODO: delete \/
+            foreach (KeyValuePair<String, Variable> entry in this.Variables)
             {
                 if (entry.Value.VariableType == VariableTypes.INT)
                 {
@@ -39,74 +44,70 @@ namespace SabotageBatchFileProcessor
             }
         }
 
-        private void processAllLines()
+        private void processCommand(String line)
         {
-            foreach (String line in lines)
+            Console.ForegroundColor = ConsoleColor.DarkGreen;
+            Console.WriteLine(line);
+            Console.ResetColor();
+            Boolean isInt;
+            if ((isInt = line.StartsWith("int ")) || line.StartsWith("string ")) // declaration only
             {
-                Console.ForegroundColor = ConsoleColor.DarkGreen;
-                Console.WriteLine(line);
-                Console.ResetColor();
-                Boolean isInt;
-                if (containsKeyWords(line))
+                declareVar(line, isInt);
+                if (isInt)
                 {
-                    if ((isInt = line.StartsWith("int ")) || line.StartsWith("string "))
-                    {
-                        declareVar(line, isInt);
-                    }
-                    else if (line.Contains("print"))
-                    {
-                        prepareToPrint(line);
-                    }
+                    line = line.Substring(4);
                 }
-                else if (containsKeySign(line, false))
+                else
                 {
-                    calculate(line);
+                    line = line.Substring(6);
                 }
-                else if (line.Contains('='))
-                {
-                    assignValue(line);
-                }
+            }
+            if (line.Trim().StartsWith("print")) // print only
+            {
+                prepareToPrint(line);
+            }
+            if (SParser.containsKeySign(line, false)) // operation with assignment
+            {
+                line = calculate(line);
+            }
+            if (line.Contains('=')) // assignment only
+            {
+                SParser.assignValue(line);
             }
         }
 
-        private void calculate(string line)
+        private string calculate(string line)
         {
-            Dictionary<Int32, Char> signIndexes = new Dictionary<Int32, Char>();
-            for (int i = 0; i < line.Length; i++)
-            {
-                char c = line[i];
-                if (isKeySign(c, false) || c == '"')
-                {
-                    signIndexes.Add(i, c);
-                }
-            }
-            foreach (KeyValuePair<Int32, Char> entry in signIndexes)
+            string newLine = "";
+            Dictionary<Int32, Char> signIndexes = SParser.getSignIndexes(line);
+            foreach (KeyValuePair<Int32, Char> entry in signIndexes) //TODO: delete
             {
                 Console.ForegroundColor = ConsoleColor.Blue;
                 Console.WriteLine(entry);
                 Console.ResetColor();
             }
-        }
-
-
-        private bool containsKeySign(string line, bool withEqual)
-        {
-            Boolean inQuotes = false;
-            foreach (char ch in line)
+            int iR = signIndexes.First(x => x.Value == KEYSIGNS[5]).Key;
+            if (iR == -1)
             {
-                if (ch == '"')
+                throw new InvalidOperationException("Invalid operation in " + line);
+            }
+            string varName = line.Substring(0, iR).Trim();
+            if (Variables.ContainsKey(varName))
+            {
+                if (signIndexes.ContainsValue(KEYSIGNS[0]))
                 {
-                    if (!inQuotes)
-                        inQuotes = true;
-                    else
-                        inQuotes = false;
-                }
-                if (KEYSIGNS.Contains(ch) && !inQuotes && (ch != KEYSIGNS[5] || withEqual))
-                {
-                    return true;
+                    int iOB = signIndexes.First(x => x.Value == KEYSIGNS[0]).Key;
+                    int iCB = signIndexes.First(x => x.Value == KEYSIGNS[1]).Key;
+                    string lineIn = line.Substring(iOB, iCB - iOB);
+                    if (SParser.containsKeySign(lineIn, false))
+                    {
+                        string s = calculate(lineIn);
+                        newLine.Replace(lineIn, s);
+                    }
                 }
             }
-            return false;
+            newLine = line.Substring(iR);
+            return varName + "=" + newLine;
         }
 
         private bool containsKeyWords(string line)
@@ -133,10 +134,10 @@ namespace SabotageBatchFileProcessor
                                 iQuotes.Add(i);
                             }
                         }
-                        Boolean inQuotes=false;
+                        Boolean inQuotes = false;
                         for (int iT = 0; iT < iQuotes.Count; iT++)
                         {
-                             inQuotes = iT % 2 != 0;
+                            inQuotes = iT % 2 != 0;
                             if (inQuotes && iWord < iQuotes[iT])
                             {
                                 return true;
@@ -152,86 +153,49 @@ namespace SabotageBatchFileProcessor
             return false;
         }
 
-        private bool isKeySign(char c, bool withEqual)
-        {
-            if (KEYSIGNS.Contains(c) && (c != KEYSIGNS[5] || withEqual))
-            {
-                return true;
-            }
-            return false;
-        }
-
         private void declareVar(String line, Boolean isInt)
         {
             int iR = line.IndexOf('=');
             int iL = line.IndexOf(';');
             int iVNL;
-            string value;
             Variable variable;
             if (isInt)
             {
-                iVNL = line.IndexOf('t');
+                iVNL = 3;
                 variable = new Variable(0);
             }
             else
             {
-                iVNL = line.IndexOf('g');
+                iVNL = 6;
                 variable = new Variable("");
             }
-            if (line[iVNL + 1] == ' ')
+            if (iR==-1)
             {
-                string varName;
-                if (iR == -1)
-                {
-                    varName = line.Substring(iVNL + 2, iL - iVNL - 2).Trim();
-                    Variables.Add(varName, variable);
-                }
-                else
-                {
-                    varName = line.Substring(iVNL + 2, iR - iVNL - 2).Trim();
-                    value = line.Substring(iR + 1, iL - iR - 1);
-                    if (isInt)
-                    {
-                        int v;
-                        if (int.TryParse(value, out v))
-                        {
-                            variable.IValue = v;
-                            Variables.Add(varName, variable);
-                        }
-                        else
-                        {
-                            throw new InvalidCastException("Invalid cast exception" + "\n" + value + " in line " + line);
-                        }
-                    }
-                    else
-                    {
-                        variable.SValue = value;
-                        Variables.Add(varName, variable);
-                    }
-                }
+                iR = iL;
             }
+            string varName = line.Substring(iVNL, iR - iVNL).Trim();
+            Variables.Add(varName, variable);
         }
 
-        private void assignValue(string line)
+        public void assignValue(string varName, string value)
         {
-            int iR = line.IndexOf('=');
-            int iS = line.IndexOf(';');
-            string varName = line.Substring(0, iR).Trim();
-            string value = line.Substring(iR + 1, iS - iR - 1);
-            int iValue;
-            if (value.Contains('"'))
+            if (!Variables.ContainsKey(varName))
             {
-                int iFQ = value.IndexOf('"');
-                int sFQ = value.IndexOf('"', iFQ + 1);
-                Variables[varName].SValue = value.Substring(iFQ + 1, sFQ - iFQ - 1);
+                throw new Exception("Variable '" + varName + "' not declared!");
             }
-            else if (int.TryParse(value, out iValue))
-            {
-                Variables[varName].IValue = iValue;
-            }
+            Variables[varName].SValue = value;
         }
 
-        private void prepareToPrint(string line)
+        public void assignValue(string varName, int value)
+        {
+            if (!Variables.ContainsKey(varName))
+            {
+                throw new NullReferenceException("Variable '" + varName + "' not declared!");
+            }
+            Variables[varName].IValue = value;
+        }
+
+        public void prepareToPrint(string line)
         {
             int iFB = line.IndexOf('(');
             int iSB = line.IndexOf(')');

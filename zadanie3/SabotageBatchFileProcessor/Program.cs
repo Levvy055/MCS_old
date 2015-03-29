@@ -32,6 +32,10 @@ namespace SabotageBatchFileProcessor
             {
                 Console.WriteLine(e.Message);
             }
+            catch (InvalidOperationException e)
+            {
+                Console.WriteLine(e.Message);
+            }
             Console.ReadLine();
         }
     }
