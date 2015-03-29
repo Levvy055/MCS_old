@@ -66,91 +66,18 @@ namespace SabotageBatchFileProcessor
             {
                 prepareToPrint(line);
             }
-            if (SParser.containsKeySign(line, false)) // operation with assignment
+            if (SParser.containsKeySigns(line, false)) // operation with assignment
             {
                 line = calculate(line);
             }
-            if (line.Contains('=')) // assignment only
+            if (line.Contains('=')) // assignment
             {
+                if (SParser.ContainsKeyWord(line, KEYWORDS[3])) // cast
+                {
+                    line = prepareAndDoCast(line);
+                }
                 SParser.assignValue(line);
             }
-        }
-
-        private string calculate(string line)
-        {
-            string newLine = "";
-            Dictionary<Int32, Char> signIndexes = SParser.getSignIndexes(line);
-            foreach (KeyValuePair<Int32, Char> entry in signIndexes) //TODO: delete
-            {
-                Console.ForegroundColor = ConsoleColor.Blue;
-                Console.WriteLine(entry);
-                Console.ResetColor();
-            }
-            int iR = signIndexes.First(x => x.Value == KEYSIGNS[5]).Key;
-            if (iR == -1)
-            {
-                throw new InvalidOperationException("Invalid operation in " + line);
-            }
-            string varName = line.Substring(0, iR).Trim();
-            if (Variables.ContainsKey(varName))
-            {
-                if (signIndexes.ContainsValue(KEYSIGNS[0]))
-                {
-                    int iOB = signIndexes.First(x => x.Value == KEYSIGNS[0]).Key;
-                    int iCB = signIndexes.First(x => x.Value == KEYSIGNS[1]).Key;
-                    string lineIn = line.Substring(iOB, iCB - iOB);
-                    if (SParser.containsKeySign(lineIn, false))
-                    {
-                        string s = calculate(lineIn);
-                        newLine.Replace(lineIn, s);
-                    }
-                }
-            }
-            newLine = line.Substring(iR);
-            return varName + "=" + newLine;
-        }
-
-        private bool containsKeyWords(string line)
-        {
-            for (int i = 0; i < KEYWORDS.Length; i++)
-            {
-                string keyWord = KEYWORDS[i];
-                if (line.Contains(keyWord))
-                {
-                    if (line.StartsWith(keyWord) && keyWord != KEYWORDS[3])
-                    {
-                        return true;
-                    }
-                    else
-                    {
-                        int iWord = line.IndexOf(keyWord);
-                        List<int> iQuotes = new List<int>();
-                        int indQ = 0;
-                        while (indQ != -1)
-                        {
-                            indQ = line.IndexOf("\"", indQ + 1);
-                            if (indQ != -1)
-                            {
-                                iQuotes.Add(i);
-                            }
-                        }
-                        Boolean inQuotes = false;
-                        for (int iT = 0; iT < iQuotes.Count; iT++)
-                        {
-                            inQuotes = iT % 2 != 0;
-                            if (inQuotes && iWord < iQuotes[iT])
-                            {
-                                return true;
-                            }
-                        }
-                        if (!inQuotes)
-                        {
-                            return true;
-                        }
-                    }
-                }
-            }
-            return false;
         }
 
         private void declareVar(String line, Boolean isInt)
@@ -169,7 +96,7 @@ namespace SabotageBatchFileProcessor
                 iVNL = 6;
                 variable = new Variable("");
             }
-            if (iR==-1)
+            if (iR == -1)
             {
                 iR = iL;
             }
@@ -193,6 +120,172 @@ namespace SabotageBatchFileProcessor
                 throw new NullReferenceException("Variable '" + varName + "' not declared!");
             }
             Variables[varName].IValue = value;
+        }
+
+        private string calculate(string line)
+        {
+            Dictionary<Int32, Char> signIndexes = SParser.getSignIndexes(line);
+            foreach (KeyValuePair<Int32, Char> entry in signIndexes) //TODO: delete
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(entry);
+                Console.ResetColor();
+            }
+            int iR = signIndexes.First(x => x.Value == KEYSIGNS[5]).Key;
+            if (iR == -1)
+            {
+                throw new InvalidOperationException("Invalid operation in " + line);
+            }
+            string newLine = line.Substring(iR + 1);
+            string varName = line.Substring(0, iR).Trim();
+            if (signIndexes.ContainsValue(KEYSIGNS[0])) //if has something in brackets
+            {
+                int iOB = signIndexes.First(x => x.Value == KEYSIGNS[0]).Key;
+                int iCB = signIndexes.First(x => x.Value == KEYSIGNS[1]).Key;
+                string lineIn = line.Substring(iOB, iCB - iOB);
+                if (SParser.containsKeySigns(lineIn, false))
+                {
+                    newLine = newLine.Replace(lineIn, calculate(lineIn));
+                }
+            }
+            else
+            {
+                Boolean isInt = Variables[varName].VariableType == VariableTypes.INT;
+                if (isInt)
+                {
+                    while (SParser.containsKeySigns(newLine, false))
+                    {
+                        Dictionary<Int32, Char> signNewIndexes = SParser.getSignIndexes(newLine);
+                        if (signNewIndexes.ContainsValue(KEYSIGNS[2]))
+                        {
+                            newLine = calcIntOp(newLine, signNewIndexes, 2);
+                        }
+                        else if (signNewIndexes.ContainsValue(KEYSIGNS[3]))
+                        {
+                            newLine = calcIntOp(newLine, signNewIndexes, 3);
+                        }
+                        else if (signNewIndexes.ContainsValue(KEYSIGNS[4]))
+                        {
+                            newLine = calcIntOp(newLine, signNewIndexes, 4);
+                        }
+
+                    }
+                }
+                else
+                {
+
+                }
+            }
+            return varName + "=" + newLine;
+        }
+
+        private string calcIntOp(string line, Dictionary<Int32, Char> signIndexes, int signIndex)
+        {
+            int a = 0;
+            int b = 0;
+            line = line.Trim();
+            int iP = signIndexes.First(x => x.Value == KEYSIGNS[signIndex]).Key;
+            int iBiP = getBeforeSignIndex(signIndexes, iP);
+            int iAiP = getAfterSignIndex(signIndexes, iP);
+            string op = line.Substring(iBiP + 1, iAiP - iBiP - 2);
+            string fS = line.Substring(iBiP, iP - iBiP - 1).Trim();
+            string sS = line.Substring(iP, iAiP - iP - 1).Trim();
+            if (Variables.ContainsKey(fS))
+            {
+                if (Variables[fS].VariableType == VariableTypes.INT)
+                {
+                    a = Variables[fS].IValue;
+                }
+                else
+                {
+                    throw new Exception("Not casted variable " + fS);
+                }
+            }
+            else if (!int.TryParse(fS, out a))
+            {
+                throw new ArgumentException("Bad input string '" + fS + "' in " + line);
+            }
+            if (Variables.ContainsKey(sS))
+            {
+                if (Variables[fS].VariableType == VariableTypes.INT)
+                {
+                    b = Variables[sS].IValue;
+                }
+                else
+                {
+                    throw new Exception("Not casted variable " + sS);
+                }
+            }
+            else
+            {
+                if (!int.TryParse(fS, out a))
+                {
+                    throw new ArgumentException("Bad input string in " + line);
+                }
+            }
+            int res = 0;
+            switch (signIndex)
+            {
+                case 2:
+                    res = a + b;
+                    break;
+                case 3:
+                    res = a - b;
+                    break;
+                case 4:
+                    res = a * b;
+                    break;
+            }
+            line = line.Replace(op, res.ToString());
+            return line;
+        }
+
+
+        private int getBeforeSignIndex(Dictionary<int, char> dictionary, int index)
+        {
+            int bI = 0;
+            foreach (var entry in dictionary)
+            {
+                if (entry.Key == index)
+                {
+                    break;
+                }
+                bI = entry.Key;
+            }
+            return bI;
+        }
+
+        private int getAfterSignIndex(Dictionary<int, char> dictionary, int index)
+        {
+            int bI = 0;
+            Boolean found = false;
+            foreach (var entry in dictionary)
+            {
+                if (found)
+                {
+                    return entry.Key;
+                }
+                else if (entry.Key == index)
+                {
+                    found = true;
+                }
+                bI = entry.Key;
+            }
+            return 0;
+        }
+
+        public string prepareAndDoCast(string line)
+        {
+            Dictionary<Int32, Char> signIndexes = SParser.getSignIndexes(line);
+            foreach (KeyValuePair<Int32, Char> entry in signIndexes) //TODO: delete
+            {
+                Console.ForegroundColor = ConsoleColor.Blue;
+                Console.WriteLine(entry);
+                Console.ResetColor();
+            }
+            string newLine = line;
+
+            return "";
         }
 
         public void prepareToPrint(string line)

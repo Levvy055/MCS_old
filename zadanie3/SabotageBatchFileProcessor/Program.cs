@@ -26,13 +26,17 @@ namespace SabotageBatchFileProcessor
             }
             catch (InvalidCastException e)
             {
-                Console.WriteLine("Invalid Cast Exception\n"+e.Message);
+                Console.WriteLine("Invalid Cast Exception\n" + e.Message);
             }
             catch (NullReferenceException e)
             {
                 Console.WriteLine(e.Message);
             }
             catch (InvalidOperationException e)
+            {
+                Console.WriteLine(e.Message);
+            }
+            catch (ArgumentException e)
             {
                 Console.WriteLine(e.Message);
             }

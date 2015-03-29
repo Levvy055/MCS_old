@@ -15,7 +15,7 @@ namespace SabotageBatchFileProcessor
             this.batchInterpreter = batchInterpreter;
         }
 
-        public bool containsKeySign(string line, bool withEqual)
+        public bool containsKeySigns(string line, bool withEqual)
         {
             Boolean inQuotes = false;
             foreach (char ch in line)
@@ -30,6 +30,58 @@ namespace SabotageBatchFileProcessor
                 if (BatchInterpreter.KEYSIGNS.Contains(ch) && !inQuotes && (ch != BatchInterpreter.KEYSIGNS[5] || withEqual))
                 {
                     return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsKeyWords(string line)
+        {
+            for (int i = 0; i < BatchInterpreter.KEYWORDS.Length; i++)
+            {
+                string keyWord = BatchInterpreter.KEYWORDS[i];
+                if (ContainsKeyWord(line, keyWord))
+                {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public bool ContainsKeyWord(string line, string keyWord)
+        {
+            if (line.Contains(keyWord))
+            {
+                if (line.StartsWith(keyWord) && keyWord != BatchInterpreter.KEYWORDS[3])
+                {
+                    return true;
+                }
+                else
+                {
+                    int iWord = line.IndexOf(keyWord);
+                    List<int> iQuotes = new List<int>();
+                    int indQ = 0;
+                    while (indQ != -1)
+                    {
+                        indQ = line.IndexOf("\"", indQ + 1);
+                        if (indQ != -1)
+                        {
+                            iQuotes.Add(indQ);
+                        }
+                    }
+                    Boolean inQuotes = false;
+                    for (int iT = 0; iT < iQuotes.Count; iT++)
+                    {
+                        inQuotes = iT % 2 != 0;
+                        if (inQuotes && iWord < iQuotes[iT])
+                        {
+                            return true;
+                        }
+                    }
+                    if (!inQuotes)
+                    {
+                        return true;
+                    }
                 }
             }
             return false;
