@@ -1,1 +1,1 @@
-# MasterCoderSolutions
+# MCS Competition
